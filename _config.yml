@@ -1,0 +1,7 @@
+title: PWindows Store
+description: Official Store of PWindows
+url: "https://store.pwindows.qzz.io"
+collections:
+  articles:
+    output: true
+    permalink: /article/:name

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% if page.url == "/" %}
+       {% include schema-org.html %}
+    {% endif %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title }} | {{ site.title }}</title>
+    <link rel="canonical" href="{{ page.url | absolute_url }}" />
+    <meta name="title" content="{{ page.title }} | {{ site.title }}">
+    <meta name="application-name" content="PWindows" />
+    <meta property="og:site_name" content="PWindows" />
+
+    <meta name="description" content="Discover PWindows, not just a Minecraft server">
+    <meta name="keywords" content="PWindows, Minecraft, Server, Community, Roblox, Roblox Studio, Studio, Games, MC, PeterMaZep">
+    <meta name="author" content="PeterMaZep, PWindows">
+
+    <meta property="og:title" content="PWindows - Not just a Minecraft Server">
+    <meta property="og:description" content="Discover PWindows">
+    <meta property="og:image" content="https://www.pwindows.qzz.io/preview.png">
+    <meta property="og:url" content="{{ page.url | absolute_url }}">
+    <meta property="og:type" content="website">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="PWindows - Not just a Minecraft Server">
+    <meta name="twitter:description" content="Discover PWindows">
+    <meta name="twitter:image" content="https://www.pwindows.qzz.io/preview.png">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+
+    <meta name="theme-color" content="#ffffff">
+
+    <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+    {{ content_for_head }}
+
+    <!-- Allow pages to add additional CSS -->
+    {% if page.extra_css %}
+    {% for css_file in page.extra_css %}
+    <link rel="stylesheet" href="{{ css_file | relative_url }}">
+    {% endfor %}
+    {% endif %}
+</head>
+<body>
+    {% if page.layout != "news" %}
+    <h1 style="display: none;">{{ page.title }} | {{ site.title }}</h1>
+    {% endif %}
+    {% include header.html %}
+    <main>
+        {{ content }}
+    </main>
+    <script src="{{ '/assets/js/main.js' | relative_url }}"></script>
+</body>
+</html>

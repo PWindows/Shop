@@ -1,0 +1,1069 @@
+@font-face {
+    font-family: 'Minecraft Ten v2';
+    src: url('../mojang/fonts/Minecraft-Tenv2.ttf') format('truetype');
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Minecraft Seven v2';
+    src: url('../mojang/fonts/Minecraft-Seven_v2.ttf') format('truetype');
+    font-display: swap;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Minecraft Seven v2', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url('../mojang/img/bg-wool-white.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: #333333;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Minecraft Ten v2', 'Impact', 'Trebuchet MS', 'Segoe UI', sans-serif;
+}
+
+/* Topbar Styles with enhanced glow */
+.topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    z-index: 1003;
+    border-bottom: 1px solid rgba(255, 206, 2, 0.2);
+    box-shadow: 0 4px 20px rgba(255, 206, 2, 0.1);
+}
+
+/* Hamburger Menu Styles */
+.hamburger {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    z-index: 1002;
+    padding: 8px;
+    border-radius: 8px;
+    transform: rotate(0deg);
+    transition: all 0.4s ease, transform 0.4s ease;
+}
+
+    .hamburger:hover {
+        background: rgba(255, 206, 2, 0.1);
+        box-shadow: 0 0 20px rgba(255, 206, 2, 0.3);
+    }
+
+    .hamburger span {
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(45deg, #333, #555);
+        border-radius: 2px;
+        transition: all 0.4s ease;
+        transform-origin: center;
+        box-shadow: 0 0 6px rgba(255, 206, 2, 0.4);
+    }
+
+    /* Hamburger Animation - Simple 90 degree rotation, keep all 3 lines */
+    .hamburger.active {
+        transform: rotate(90deg);
+    }
+
+        .hamburger.active span {
+            background: linear-gradient(45deg, #ffce02, #e6b800);
+            box-shadow: 0 0 8px rgba(255, 206, 2, 0.6);
+        }
+
+/* Mobile Menu Overlay - Desktop sidebar, mobile full screen */
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: -400px;
+    width: 400px;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    z-index: 1001;
+    transition: left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex;
+    flex-direction: column;
+    padding-top: 100px;
+    overflow-y: auto;
+    box-shadow: 0 0 50px rgba(255, 206, 2, 0.2);
+}
+
+    .menu-overlay.active {
+        left: 0;
+    }
+
+/* Navigation Menu */
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+    padding: 40px 20px;
+    max-width: 400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.nav-item {
+    text-decoration: none;
+    font-family: 'Minecraft Seven v2', monospace;
+    font-size: 1.1rem;
+    color: #333;
+    padding: 18px 35px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 206, 2, 0.2);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    width: 100%;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+    .nav-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 206, 2, 0.3), transparent);
+        transition: left 0.6s;
+    }
+
+    .nav-item:hover::before {
+        left: 100%;
+    }
+
+    .nav-item:hover {
+        background: rgba(255, 255, 255, 0.95);
+        border-color: rgba(255, 206, 2, 0.4);
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1), 0 0 20px rgba(255, 206, 2, 0.3);
+    }
+
+    .nav-item:active {
+        transform: translateY(-1px) scale(1.01);
+    }
+
+    /* Special styling for different nav items */
+    .nav-item.primary {
+        background: linear-gradient(135deg, #ffce02, #ffd93d);
+        color: #333;
+        border-color: #ffce02;
+        box-shadow: 0 4px 15px rgba(255, 206, 2, 0.3), 0 0 20px rgba(255, 206, 2, 0.2);
+    }
+
+        .nav-item.primary:hover {
+            background: linear-gradient(135deg, #ffd93d, #ffce02);
+            box-shadow: 0 15px 40px rgba(255, 206, 2, 0.4), 0 0 30px rgba(255, 206, 2, 0.5);
+            transform: translateY(-4px) scale(1.03);
+        }
+
+    .nav-item.secondary {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.2));
+        border-color: rgba(34, 197, 94, 0.3);
+        color: #22c55e;
+        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.1);
+    }
+
+        .nav-item.secondary:hover {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.3));
+            box-shadow: 0 15px 40px rgba(34, 197, 94, 0.2), 0 0 30px rgba(34, 197, 94, 0.3);
+        }
+
+/* Menu Footer */
+.menu-footer {
+    margin-top: auto;
+    padding: 30px 20px;
+    text-align: center;
+    border-top: 1px solid rgba(255, 206, 2, 0.2);
+}
+
+    .menu-footer p {
+        font-family: 'Minecraft Seven v2', monospace;
+        font-size: 0.7rem;
+        color: #666;
+        margin-bottom: 20px;
+    }
+
+.social-links {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.social-link {
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 206, 2, 0.1);
+    border: 1px solid rgba(255, 206, 2, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #ffce02;
+    font-size: 1.1rem;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 0 4px 15px rgba(255, 206, 2, 0.1);
+}
+
+    .social-link:hover {
+        background: linear-gradient(135deg, #ffce02, #ffd93d);
+        color: #333;
+        box-shadow: 0 4px 15px rgba(255, 206, 2, 0.3);
+    }
+
+/* Logo with enhanced interactivity */
+.logo {
+    height: 27px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    padding: 8px;
+}
+
+    .logo:hover {
+        transform: translateX(-50%) scale(1.1);
+    }
+
+    .logo:active {
+        transform: translateX(-50%) scale(1.05);
+    }
+
+.logo-img {
+    max-width: 400%;
+    max-height: 400%;
+    object-fit: contain;
+    transition: all 0.3s ease;
+}
+
+.logo:hover .logo-img {
+    filter: drop-shadow(0 0 10px rgba(255, 206, 2, 0.6));
+}
+
+/* About button with glow */
+.about-btn {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #333, #555);
+    color: white;
+    text-decoration: none;
+    border-radius: 20px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Minecraft Seven v2', monospace;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+    .about-btn:hover {
+        background: linear-gradient(135deg, #555, #777);
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3), 0 0 20px rgba(255, 206, 2, 0.2);
+    }
+
+/* Landing Section with subtle glow */
+.landing {
+    height: 100vh;
+    background-image: url('../mojang/img/bg-grass.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding-top: 80px;
+    border-radius: 25px;
+    margin: 15px;
+    margin-top: 100px;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.15), 0 0 40px rgba(255, 206, 2, 0.1);
+    overflow: hidden;
+    max-height: 650px;
+}
+
+    .landing::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(255, 206, 2, 0.05), transparent);
+        opacity: 0.7;
+        z-index: 0;
+    }
+
+.landing-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 40px 40px 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+}
+
+/* Hero Card with enhanced glow */
+.hero-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 25px;
+    padding: 30px 35px 5px 35px;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.15), 0 0 40px rgba(255, 206, 2, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 206, 2, 0.3);
+    background-image: url('../mojang/img/bg-wool-white.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    overflow: hidden;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    max-width: 850px;
+    transition: all 0.3s ease;
+}
+
+    .hero-card:hover {
+        transform: translateY(-2px);
+        box-shadow: none;
+    }
+
+    .hero-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at center, rgba(255, 206, 2, 0.05), transparent);
+        z-index: -1;
+    }
+
+/* Animated Heading with text glow */
+.hero-heading {
+    text-align: center;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 400;
+    color: #333;
+    margin-bottom: 0;
+    line-height: 1.4;
+    font-family: 'Minecraft Ten v2', monospace;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-line-1 {
+    display: block;
+    text-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.hero-line-2 {
+    display: block;
+    color: #ffce02;
+    text-shadow: 0 0 20px rgba(255, 206, 2, 0.5), 0 0 40px rgba(255, 206, 2, 0.3);
+}
+
+.animated-word {
+    color: #ffce02;
+    display: block;
+    position: relative;
+    text-align: center;
+    margin-top: 0.2em;
+    text-shadow: 0 0 20px rgba(255, 206, 2, 0.5), 0 0 40px rgba(255, 206, 2, 0.3);
+}
+
+.word-container {
+    display: inline-block;
+    position: relative;
+    height: 1.3em;
+    overflow: hidden;
+    min-width: 500px;
+}
+
+.words-list {
+    position: relative;
+    animation: perfectWordScroll 9s ease-in-out infinite;
+}
+
+.word {
+    display: block;
+    height: 1.3em;
+    line-height: 1.3em;
+    text-align: center;
+    padding: 0;
+    font-family: 'Minecraft Ten v2', monospace;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 10px rgba(255, 206, 2, 0.5);
+    }
+
+    to {
+        text-shadow: 0 0 20px rgba(255, 206, 2, 0.7);
+    }
+}
+
+@keyframes perfectWordScroll {
+    0%, 25% {
+        transform: translateY(0);
+    }
+
+    33%, 58% {
+        transform: translateY(-1.3em);
+    }
+
+    66%, 91% {
+        transform: translateY(-2.6em);
+    }
+
+    100% {
+        transform: translateY(-3.9em);
+    }
+}
+
+/* Bottom Content with enhanced interactivity */
+.bottom-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+    margin-top: 45px;
+}
+
+.server-info {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border: none;
+    border-radius: 16px;
+    padding: 18px 28px;
+    font-family: 'Minecraft Seven v2', monospace;
+    font-size: 0.9rem;
+    color: #ffce02;
+    font-weight: 400;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1), 0 0 20px rgba(255, 206, 2, 0.2);
+    border: 1px solid rgba(255, 206, 2, 0.3);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.3s ease;
+    position: relative;
+}
+
+    .server-info:hover {
+        transform: translateY(-5px);
+        box-shadow: none;
+        background: rgba(255, 255, 255, 1);
+        border-color: rgba(255, 206, 2, 0.5);
+    }
+
+    .server-info::after {
+        content: 'Copied!';
+        position: absolute;
+        top: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(34, 197, 94, 0.8));
+        color: white;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+    }
+
+    .server-info.copied::after {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-5px);
+    }
+
+    .server-info:active {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 15px 50px rgba(0,0,0,0.15), 0 0 30px rgba(255, 206, 2, 0.3);
+    }
+
+.launch-btn {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+    color: #22c55e;
+    padding: 18px 36px;
+    border: none;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1), 0 0 20px rgba(34, 197, 94, 0.2);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    font-family: 'Minecraft Seven v2', monospace;
+}
+
+    .launch-btn:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 15px 50px rgba(0,0,0,0.2), 0 0 30px rgba(34, 197, 94, 0.4);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.95));
+    }
+
+/* Transition Section */
+.transition-section {
+    min-height: 10vh;
+    background-image: url('../mojang/img/bg-wool-white-dark.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: repeat-x;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.about-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    color: white;
+}
+
+.about-section h2 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+    color: #ffce02;
+    font-weight: 400;
+    font-family: 'Minecraft Ten v2', monospace;
+    text-shadow: 0 0 20px rgba(255, 206, 2, 0.5), 0 0 40px rgba(255, 206, 2, 0.3);
+}
+
+.about-section p {
+    font-size: 0.9rem;
+    line-height: 1.8;
+    margin-bottom: 20px;
+    opacity: 0.9;
+    font-family: 'Minecraft Seven v2', monospace;
+}
+
+/* How to Join Section */
+.howtojoin {
+    min-height: 50vh;
+    background-image: url('../mojang/img/bg-wool-dark.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 80px 40px;
+}
+
+.howtojoin-heading {
+    font-family: 'Minecraft Ten v2', monospace;
+    font-size: clamp(2.5rem, 7vw, 4rem);
+    font-weight: 400;
+    color: #ffffff;
+    text-align: center;
+    text-shadow: 0 0 20px rgba(255, 206, 2, 0.5), 0 0 40px rgba(255, 206, 2, 0.3);
+    margin-bottom: 60px;
+}
+
+    .howtojoin-heading::after {
+        content: "Applies to Minecraft server only";
+        display: block;
+        font-size: 0.8rem;
+        color: #cccccc;
+        margin-top: 10px;
+        font-family: 'Minecraft Seven v2', monospace;
+        opacity: 0.8;
+    }
+
+.howtojoin-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    width: 100%;
+    padding: 0 20px;
+}
+
+.flip-card {
+    perspective: 1000px;
+    height: 320px;
+    cursor: pointer;
+}
+
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+    transition: transform 0.4s ease-in-out; /* Reduced duration */
+}
+
+.flip-card-front,
+.flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 20px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.flip-card-front {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 206, 2, 0.3);
+}
+
+.flip-card-back {
+    background: linear-gradient(135deg, #ffce02, #ffd93d);
+    transform: rotateY(180deg);
+    border: 2px solid rgba(255, 206, 2, 0.5);
+}
+
+.flip-card-icon {
+    font-size: 4rem;
+    margin-bottom: 30px;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.flip-card-title {
+    font-family: 'Minecraft Ten v2', monospace;
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.flip-card-subtitle {
+    font-family: 'Minecraft Seven v2', monospace;
+    font-size: 0.9rem;
+    color: #666;
+    text-align: center;
+}
+
+.flip-card-back-content {
+    text-align: center;
+    width: 100%;
+}
+
+.flip-card-back-title {
+    font-family: 'Minecraft Ten v2', monospace;
+    font-size: 1.3rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.flip-card-back-text {
+    font-family: 'Minecraft Seven v2', monospace;
+    font-size: 0.85rem;
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.flip-card-button {
+    font-family: 'Minecraft Seven v2', monospace;
+    font-size: 0.9rem;
+    color: #333;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: bold;
+    border: 2px solid rgba(51, 51, 51, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    position: relative;
+}
+
+    .flip-card-button:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        border-color: rgba(51, 51, 51, 0.4);
+        animation: pulse 0.3s ease;
+    }
+
+    .flip-card-button:active {
+        transform: translateY(0);
+    }
+
+    .flip-card-button.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background: rgba(200, 200, 200, 0.5);
+    }
+
+        .flip-card-button.disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+    .flip-card-button::after {
+        content: 'Copied!';
+        position: absolute;
+        top: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(34, 197, 94, 0.8));
+        color: white;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        white-space: nowrap;
+    }
+
+    .flip-card-button.copied::after {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-5px);
+    }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .topbar {
+        padding: 0 20px;
+        height: 70px;
+    }
+
+    .logo {
+        width: 66px;
+        height: 66px;
+    }
+
+    .about-btn {
+        display: none;
+    }
+
+    /* Mobile fullscreen menu overlay */
+    .menu-overlay {
+        left: -100%;
+        width: 100vw;
+        padding-top: 0; /* Remove padding to cover entire screen */
+        box-shadow: none;
+    }
+
+        .menu-overlay.active {
+            left: 0;
+        }
+
+    .nav-menu {
+        max-width: none;
+        width: 100%;
+        padding: 100px 25px 40px; /* Add top padding for content spacing */
+        gap: 20px;
+    }
+
+    .landing {
+        margin: 8px;
+        margin-top: 80px;
+        border-radius: 20px;
+    }
+
+    .hero-card {
+        padding: 25px 20px 15px 20px;
+        border-radius: 20px;
+    }
+
+    .hero-heading {
+        font-size: clamp(1.5rem, 8vw, 2.5rem);
+        line-height: 1.2;
+        margin-bottom: 0;
+    }
+
+    .word-container {
+        min-width: 350px;
+    }
+
+    .server-info {
+        display: none;
+    }
+
+    .bottom-content {
+        padding: 0 20px;
+        gap: 20px;
+    }
+
+    .launch-btn {
+        padding: 16px 32px;
+        font-size: 0.8rem;
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+    }
+
+    .landing-content {
+        padding: 40px 20px;
+    }
+
+    .howtojoin {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .howtojoin-heading {
+        margin-bottom: 20px;
+    }
+
+    .howtojoin-cards {
+        margin-top: 20px;
+    }
+
+        .howtojoin-cards > .card {
+            margin: 0 auto;
+        }
+}
+
+@media (max-width: 480px) {
+    .hero-heading {
+        font-size: clamp(1.2rem, 10vw, 2rem);
+    }
+
+    .word-container {
+        min-width: 300px;
+    }
+
+    .landing {
+        margin: 5px;
+        margin-top: 75px;
+        border-radius: 16px;
+    }
+
+    .hero-card {
+        padding: 20px;
+        border-radius: 16px;
+        margin-top: -30px;
+    }
+}
+
+/* Optimized Animations */
+
+/* Simplified glow animation */
+@keyframes glow {
+    from {
+        text-shadow: 0 0 10px rgba(255, 206, 2, 0.5);
+    }
+    to {
+        text-shadow: 0 0 20px rgba(255, 206, 2, 0.7);
+    }
+}
+
+/* Optimized word scroll animation */
+@keyframes perfectWordScroll {
+    0%, 25% {
+        transform: translateY(0);
+    }
+    33%, 58% {
+        transform: translateY(-1.3em);
+    }
+    66%, 91% {
+        transform: translateY(-2.6em);
+    }
+    100% {
+        transform: translateY(-3.9em);
+    }
+}
+
+/* Removed box-shadow and reduced hover effects */
+.hero-card:hover {
+    transform: translateY(-2px);
+    box-shadow: none;
+}
+
+.server-info:hover {
+    transform: translateY(-5px);
+    box-shadow: none;
+}
+
+.flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+    transition: transform 0.4s ease-in-out; /* Reduced duration */
+}
+
+/* Removed wobble animation for better performance */
+.social-link:hover {
+    background: linear-gradient(135deg, #ffce02, #ffd93d);
+    color: #333;
+    box-shadow: 0 4px 15px rgba(255, 206, 2, 0.3);
+}
+
+/* Disabled hover effects on mobile */
+@media (hover: none) {
+    .hero-card:hover, .server-info:hover, .flip-card:hover .flip-card-inner {
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+.articles-title {
+    padding-top: 6rem;
+    padding-bottom: 1rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.articles-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#sort-select {
+    padding: 0.4rem 0.8rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.banner {
+    height: 180px;
+    background-size: cover;
+    background-position: center;
+    width: 100%;
+}
+
+.article-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 270px));
+    justify-content: start; /* keeps them centered */
+    gap: 2rem;
+    max-width: 1200px; /* optional: cap total width */
+    padding: 0 2rem; /* side spacing */
+}
+
+
+.article-card {
+    background: #f9f9f9; /* light card background */
+    border: 1px solid #ddd; /* subtle border for contrast */
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+    .article-card:hover {
+        transform: translateY(-4px); /* subtle hover lift */
+    }
+
+    .article-card img.banner {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        display: block;
+    }
+
+.card-content {
+    padding: 1rem;
+    color: #333; /* dark text for white background */
+}
+
+.type-label {
+    display: inline-block;
+    background: #ffd700;
+    color: #000;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 0.3em 0.6em;
+    border-radius: 4px;
+    margin-bottom: 0.5em;
+    text-transform: uppercase;
+}
+
+.sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.featured-news {
+    margin-top: 6rem;
+    margin-left: 2rem;
+    margin-bottom: -4rem;
+}
+
+.featured-title {
+    margin-bottom: 1rem;
+}
+
+.sort-controls {
+    margin-top: 5rem;
+    margin-right: 2rem;
+}
+
+.featured-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 270px));
+    gap: 2rem; /* optional spacing between cards */
+}
+
+.article-card a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.sort-controls select {
+    font-family: 'Minecraft Seven v2', sans-serif;
+    font-size: 1rem;
+    line-height: 1.2; /* tighter line height */
+    padding: 6px 10px; /* give vertical breathing room */
+    box-sizing: border-box;
+    height: auto;
+    vertical-align: middle;
+}
+
+.spacing-start {
+    margin-top: 5rem;
+}

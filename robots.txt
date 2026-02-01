@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://www.pwindows.qzz.io/sitemap.xml

@@ -1,0 +1,103 @@
+/* Default (light mode / brand base) */
+body {
+    background: #ffffff; /* brand white background */
+    color: #000000;
+}
+
+.news-banner img {
+    height: 670px; /* set a fixed height */
+    object-fit: cover; /* crop instead of squish */
+    width: 100%; /* keep full width */
+    margin-bottom: 1rem;
+}
+
+.news-item h1 h2 h3 {
+    font-family: 'Minecraft Ten v2';
+    margin-bottom: 10px;
+}
+
+.minecraft-box {
+    position: absolute; /* overlay on banner */
+    top: 650px; /* distance from bottom */
+    left: 50%; /* center horizontally */
+    transform: translateX(-50%); /* true centering */
+
+    background-color: #171615;
+    padding: 12px 20px;
+    font-size: 1.2rem;
+    color: #ffffff;
+    text-align: center;
+}
+
+.news-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 90px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.author-info {
+    flex: 0 0 200px; /* fixed width column */
+    text-align: center;
+}
+
+.author-pfp {
+    display: block; /* default for images */
+    margin: 0 auto;
+    max-width: 120px; /* sets a max width */
+    height: auto; /* keeps natural aspect ratio */
+    object-fit: contain; /* ensures the whole image shows */
+    margin-bottom: 10px;
+    display: block;
+}
+
+.author-name {
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.author-date {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.summary {
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+
+.content {
+    line-height: 1.3;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #171615;
+        color: #e0e0e0;
+    }
+
+    .minecraft-box {
+        background-color: #ffffff;
+        color: #1D1E1E;
+    }
+}
+
+@media (max-width: 768px) {
+    .news-body {
+        flex-direction: column; /* stack vertically */
+        gap: 30px; /* smaller gap for mobile */
+    }
+
+    .author-info {
+        order: -1; /* move author block to the top */
+        flex: none; /* remove fixed width */
+        width: 100%; /* full width on mobile */
+        margin-bottom: 20px;
+    }
+
+    .article {
+        width: 100%; /* ensure article fills the width */
+    }
+}
