@@ -13,6 +13,19 @@ function goHome() {
     window.location.href = 'https://shop.pwindows.qzz.io/';
 }
 
+function goBack() {
+    const logo = document.getElementById('logo');
+    if (!logo) return;
+    
+    logo.style.animation = 'bounce 0.6s ease-in-out';
+
+    setTimeout(() => {
+        logo.style.animation = '';
+    }, 600);
+
+    // Navigate to index page instead of #home
+    window.location.href = 'https://www.pwindows.qzz.io/';
+}
 
 // Hamburger Menu Functionality
 function toggleMenu() {
