@@ -10,29 +10,7 @@ function goHome() {
     }, 600);
 
     // Navigate to index page instead of #home
-    goTo('/');
-}
-
-function goToAbsolute(path) {
-  // Ensure path starts with a slash
-  if (!path.startsWith('/')) {
-    path = '/' + path;
-  }
-
-  // Build a full absolute URL
-  const absoluteUrl = `${window.location.protocol}//${window.location.host}${path}`;
-
-  // Force a hard reload from the server (bypasses SPA routing & <base> tag)
-  window.location.replace(absoluteUrl);
-}
-
-
-function aboutPage() {
-  goTo('about'); // works even without leading slash
-}
-
-function newsPage() {
-  goTo('articles');
+    window.location.href = 'https://www.pwindows.qzz.io/';
 }
 
 
