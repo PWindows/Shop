@@ -10,7 +10,7 @@ function goHome() {
     }, 600);
 
     // Navigate to index page instead of #home
-    window.location.href = 'https://www.pwindows.qzz.io/';
+    window.location.href = 'https://shop.pwindows.qzz.io/';
 }
 
 
