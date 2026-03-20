@@ -10,31 +10,22 @@ function goHome() {
     }, 600);
 
     // Navigate to index page instead of #home
-    goTo('/');
+    window.location.href = 'https://shop.pwindows.qzz.io/';
 }
 
-function goToAbsolute(path) {
-  // Ensure path starts with a slash
-  if (!path.startsWith('/')) {
-    path = '/' + path;
-  }
+function goBack() {
+    const logo = document.getElementById('logo');
+    if (!logo) return;
+    
+    logo.style.animation = 'bounce 0.6s ease-in-out';
 
-  // Build a full absolute URL
-  const absoluteUrl = `${window.location.protocol}//${window.location.host}${path}`;
+    setTimeout(() => {
+        logo.style.animation = '';
+    }, 600);
 
-  // Force a hard reload from the server (bypasses SPA routing & <base> tag)
-  window.location.replace(absoluteUrl);
+    // Navigate to index page instead of #home
+    window.location.href = 'https://www.pwindows.qzz.io/';
 }
-
-
-function aboutPage() {
-  goTo('about'); // works even without leading slash
-}
-
-function newsPage() {
-  goTo('articles');
-}
-
 
 // Hamburger Menu Functionality
 function toggleMenu() {
