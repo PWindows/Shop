@@ -1,0 +1,18 @@
+{% assign p = include.product %}
+<a href="{{ p.url | relative_url }}" class="product-card {% if p.featured %}product-card--featured{% endif %}">
+  {% if p.featured %}
+  <div class="product-badge">Most Popular</div>
+  {% endif %}
+  <div class="product-img-wrap">
+    <img src="{{ p.image }}" alt="{{ p.title }}" onerror="this.src='/assets/img/products/placeholder.png'" />
+  </div>
+  <div class="product-info">
+    <h3 class="product-title">{{ p.title }}</h3>
+    <p class="product-coins">{{ p.coins | number_with_delimiter }} PCoins</p>
+    <p class="product-desc">{{ p.description }}</p>
+  </div>
+  <div class="product-footer">
+    <span class="product-price">${{ p.price }}</span>
+    <span class="product-btn">Buy Now</span>
+  </div>
+</a>

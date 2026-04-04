@@ -2,3 +2,138 @@
 layout: default
 title: Home
 ---
+
+<div class="gate-wrap">
+  <div class="gate-card" id="gate-main">
+    <div class="gate-logo">
+      <img src="/assets/img/logo.png" alt="PWindows" onerror="this.style.display='none'" />
+    </div>
+    <h1 class="gate-title">Welcome to the<br><span class="gate-yellow">PWindows Shop</span></h1>
+    <p class="gate-sub">Enter your Minecraft username to buy PCoins</p>
+
+    <div class="gate-input-row">
+      <input type="text" id="gate-username" class="gate-input" placeholder="Your username..." autocomplete="off" maxlength="16" />
+      <button class="gate-btn" id="gate-enter-btn" onclick="handleEnter()">Enter Shop</button>
+    </div>
+    <p class="gate-error" id="gate-error"></p>
+    <p class="gate-hint" id="gate-hint"></p>
+
+    <div class="gate-divider"><span>or</span></div>
+
+    <div class="gate-alt-row">
+      <a href="/merch" class="gate-alt-btn">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="6" width="16" height="11" rx="2" stroke="#333" stroke-width="1.5"/><path d="M7 6V5a3 3 0 016 0v1" stroke="#333" stroke-width="1.5"/></svg>
+        Browse Merch
+      </a>
+      <a href="/donate" class="gate-alt-btn gate-alt-btn--yellow">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 17C10 17 3 12.5 3 7.5A4 4 0 0110 5a4 4 0 017 2.5C17 12.5 10 17 10 17z" fill="#ffce02" stroke="#c9a200" stroke-width="1"/></svg>
+        Donate
+      </a>
+    </div>
+  </div>
+
+  <div class="gate-card gate-success" id="gate-success" style="display:none;">
+    <div class="gate-avatar" id="gate-avatar"></div>
+    <h2 class="gate-welcome" id="gate-welcome"></h2>
+    <p class="gate-sub">You're verified! What would you like to do?</p>
+    <div class="gate-success-btns">
+      <a href="/products" class="gate-btn gate-btn--full" id="gate-shop-link">Browse Coin Bundles</a>
+      <a href="/merch" class="gate-alt-btn">Merch</a>
+      <a href="/donate" class="gate-alt-btn gate-alt-btn--yellow">Donate</a>
+    </div>
+  </div>
+</div>
+
+<script>
+async function handleEnter() {
+  const input = document.getElementById('gate-username');
+  const btn = document.getElementById('gate-enter-btn');
+  const error = document.getElementById('gate-error');
+  const hint = document.getElementById('gate-hint');
+  const username = input.value.trim();
+
+  error.textContent = '';
+  hint.textContent = '';
+
+  if (!username) {
+    error.textContent = 'Please enter your username.';
+    return;
+  }
+
+  if (!/^[a-zA-Z0-9_]{3,16}$/.test(username)) {
+    error.textContent = 'That doesn\'t look like a valid Minecraft username.';
+    return;
+  }
+
+  btn.textContent = 'Checking...';
+  btn.disabled = true;
+  input.disabled = true;
+
+  try {
+    // Step 1: get UUID from Mojang
+    const mojangRes = await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`);
+
+    if (!mojangRes.ok) {
+      error.textContent = 'That Minecraft account doesn\'t exist.';
+      reset(btn, input);
+      return;
+    }
+
+    const mojang = await mojangRes.json();
+    const uuid = mojang.id;
+    const formattedUUID = `${uuid.slice(0,8)}-${uuid.slice(8,12)}-${uuid.slice(12,16)}-${uuid.slice(16,20)}-${uuid.slice(20)}`;
+
+    // Step 2: check against PWindows database
+    // TODO: replace with your actual Cloudflare Worker URL
+    const dbRes = await fetch(`https://api.pwindows.qzz.io/verify?uuid=${formattedUUID}`);
+    const db = await dbRes.json();
+
+    if (!db.exists) {
+      error.textContent = 'You haven\'t joined PWindows yet!';
+      hint.textContent = 'Join at play.pwindows.qzz.io first, then come back.';
+      reset(btn, input);
+      return;
+    }
+
+    // Success — store in session and show success screen
+    sessionStorage.setItem('pw_username', mojang.name);
+    sessionStorage.setItem('pw_uuid', formattedUUID);
+
+    document.getElementById('gate-main').style.display = 'none';
+    const success = document.getElementById('gate-success');
+    success.style.display = 'flex';
+    document.getElementById('gate-welcome').textContent = `Hey, ${mojang.name}!`;
+    document.getElementById('gate-avatar').style.backgroundImage =
+      `url('https://crafatar.com/avatars/${formattedUUID}?size=80&overlay')`;
+
+  } catch (e) {
+    error.textContent = 'Something went wrong. Please try again.';
+    reset(btn, input);
+  }
+}
+
+function reset(btn, input) {
+  btn.textContent = 'Enter Shop';
+  btn.disabled = false;
+  input.disabled = false;
+}
+
+// Allow Enter key
+document.getElementById('gate-username').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleEnter();
+});
+
+// If already verified this session, skip gate
+window.addEventListener('DOMContentLoaded', () => {
+  const username = sessionStorage.getItem('pw_username');
+  const uuid = sessionStorage.getItem('pw_uuid');
+  if (username && uuid) {
+    document.getElementById('gate-main').style.display = 'none';
+    const success = document.getElementById('gate-success');
+    success.style.display = 'flex';
+    document.getElementById('gate-welcome').textContent = `Hey, ${username}!`;
+    document.getElementById('gate-avatar').style.backgroundImage =
+      `url('https://crafatar.com/avatars/${uuid}?size=80&overlay')`;
+  }
+});
+</script>

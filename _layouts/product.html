@@ -1,0 +1,105 @@
+---
+layout: default
+---
+
+<div class="product-page-wrap">
+  <a href="/products" class="back-link">← Back to Shop</a>
+
+  <div class="product-page">
+    <div class="product-page-left">
+      <div class="product-page-img-wrap">
+        <img src="{{ page.image }}" alt="{{ page.title }}" onerror="this.src='/assets/img/products/placeholder.png'" />
+      </div>
+    </div>
+
+    <div class="product-page-right">
+      <p class="product-page-cat">{{ page.category | upcase }}</p>
+      <h1 class="product-page-title">{{ page.title }}</h1>
+      <p class="product-page-coins">{{ page.coins | number_with_delimiter }} PCoins</p>
+      <p class="product-page-desc">{{ page.description }}</p>
+
+      {% if page.content != "" %}
+      <div class="product-page-content">{{ page.content }}</div>
+      {% endif %}
+
+      <div class="product-page-prices">
+        <div class="price-option price-option--primary">
+          <span class="price-label">Malaysia</span>
+          <span class="price-value">RM{{ page.price_myr }}</span>
+        </div>
+        <div class="price-option">
+          <span class="price-label">China</span>
+          <span class="price-value">¥{{ page.price_cny }}</span>
+        </div>
+        <div class="price-option">
+          <span class="price-label">USD</span>
+          <span class="price-value">${{ page.price_usd }}</span>
+        </div>
+      </div>
+
+      <div class="promo-row">
+        <input type="text" id="promo-input" class="promo-input" placeholder="Promo code (optional)" />
+        <button class="promo-btn" onclick="applyPromo()">Apply</button>
+      </div>
+      <p class="promo-msg" id="promo-msg"></p>
+
+      <button class="buy-btn" id="buy-btn" onclick="handleBuy()">
+        Buy Now — RM{{ page.price_myr }}
+      </button>
+      <p class="buy-note">You'll be redirected to Stripe's secure checkout.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const STRIPE_PRICE_ID = "{{ page.stripe_price_id }}";
+const PRODUCT_TITLE = "{{ page.title }}";
+let promoCode = null;
+
+window.addEventListener('DOMContentLoaded', () => {
+  const username = sessionStorage.getItem('pw_username');
+  const uuid = sessionStorage.getItem('pw_uuid');
+  if (!username || !uuid) {
+    window.location.href = '/?redirect={{ page.url }}';
+  }
+});
+
+function applyPromo() {
+  const code = document.getElementById('promo-input').value.trim().toUpperCase();
+  const msg = document.getElementById('promo-msg');
+  if (!code) return;
+
+  msg.style.color = '#888';
+  msg.textContent = 'Checking code...';
+
+  // TODO: validate against Cloudflare Worker
+  // For now just a placeholder
+  setTimeout(() => {
+    msg.style.color = '#e74c3c';
+    msg.textContent = 'Promo codes coming soon!';
+  }, 600);
+}
+
+async function handleBuy() {
+  const btn = document.getElementById('buy-btn');
+  const uuid = sessionStorage.getItem('pw_uuid');
+  const username = sessionStorage.getItem('pw_username');
+
+  if (!uuid) {
+    window.location.href = '/';
+    return;
+  }
+
+  btn.textContent = 'Redirecting...';
+  btn.disabled = true;
+
+  // TODO: POST to Cloudflare Worker
+  // Body: { stripe_price_id: STRIPE_PRICE_ID, player_uuid: uuid, username, promo: promoCode }
+  // Worker creates Stripe Checkout session and returns URL
+  // window.location.href = session.url;
+
+  alert('Checkout coming soon!');
+  btn.textContent = 'Buy Now — RM{{ page.price_myr }}';
+  btn.disabled = false;
+}
+</script>

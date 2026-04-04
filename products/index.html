@@ -1,0 +1,157 @@
+---
+layout: default
+title: Shop
+---
+
+<div class="shop-hero">
+  <div class="shop-hero-inner">
+    <div class="shop-user-pill" id="shop-user-pill" style="display:none;">
+      <div class="shop-user-avatar" id="shop-user-avatar"></div>
+      <span id="shop-user-name"></span>
+      <button class="shop-user-switch" onclick="switchUser()">Switch</button>
+    </div>
+    <h1 class="shop-title">PCoins Shop</h1>
+    <p class="shop-sub">Buy PCoins and spend them in-game</p>
+
+    <div class="shop-controls">
+      <input type="text" id="shop-search" class="shop-search" placeholder="Search bundles..." />
+      <div class="shop-cats">
+        <button class="cat-btn active" data-cat="all">All</button>
+        <button class="cat-btn" data-cat="coins">Coins</button>
+        <button class="cat-btn" data-cat="merch">Merch</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="shop-wrap">
+  <div class="product-grid" id="product-grid">
+
+    {% assign products = site.products | sort: 'price_usd' %}
+    {% for product in products %}
+    <div class="grid-item" data-cat="{{ product.category }}" data-title="{{ product.title | downcase }}" data-desc="{{ product.description | downcase }}">
+      <a href="{{ product.url | relative_url }}" class="product-card {% if product.featured %}product-card--featured{% endif %}">
+        {% if product.featured %}<div class="product-badge">Most Popular</div>{% endif %}
+        <div class="product-img-wrap">
+          <img src="{{ product.image }}" alt="{{ product.title }}" onerror="this.src='/assets/img/products/placeholder.png'" />
+        </div>
+        <div class="product-body">
+          <p class="product-coins">{{ product.coins | number_with_delimiter }} PCoins</p>
+          <h3 class="product-name">{{ product.title }}</h3>
+          <p class="product-desc">{{ product.description }}</p>
+        </div>
+        <div class="product-footer">
+          <div class="product-prices">
+            <span class="product-price product-price--primary">RM{{ product.price_myr }}</span>
+            <span class="product-price product-price--secondary">¥{{ product.price_cny }}</span>
+          </div>
+          <span class="product-cta">Buy</span>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+
+    <div class="grid-item donate-wrap" data-cat="donate" data-title="donate support" data-desc="donate any amount support pwindows">
+      <div class="product-card donate-card">
+        <div class="product-img-wrap donate-heart">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <path d="M28 48C28 48 6 34 6 20A11 11 0 0128 14a11 11 0 0122 6C50 34 28 48 28 48z" fill="#ffce02"/>
+          </svg>
+        </div>
+        <div class="product-body">
+          <p class="product-coins">Any amount</p>
+          <h3 class="product-name">Support PWindows</h3>
+          <p class="product-desc">Love what we're building? Help keep the servers alive.</p>
+        </div>
+        <div class="product-footer donate-footer">
+          <div class="donate-input-wrap">
+            <span>RM</span>
+            <input type="number" id="donate-amount" min="1" step="1" placeholder="10" onclick="event.preventDefault()" />
+          </div>
+          <button class="product-cta donate-cta" onclick="handleDonate(event)">Donate</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <p id="no-results" style="display:none; text-align:center; padding:3rem; color:#888; font-family:'Minecraft Seven v2',monospace;">No products found.</p>
+</div>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  const username = sessionStorage.getItem('pw_username');
+  const uuid = sessionStorage.getItem('pw_uuid');
+
+  if (username && uuid) {
+    const pill = document.getElementById('shop-user-pill');
+    pill.style.display = 'flex';
+    document.getElementById('shop-user-name').textContent = username;
+    document.getElementById('shop-user-avatar').style.backgroundImage =
+      `url('https://crafatar.com/avatars/${uuid}?size=32&overlay')`;
+  } else {
+    window.location.href = '/?redirect=products';
+  }
+
+  initFilters();
+});
+
+function switchUser() {
+  sessionStorage.removeItem('pw_username');
+  sessionStorage.removeItem('pw_uuid');
+  window.location.href = '/';
+}
+
+function initFilters() {
+  const search = document.getElementById('shop-search');
+  const catBtns = document.querySelectorAll('.cat-btn');
+  let activeCat = 'all';
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('category')) {
+    activeCat = params.get('category');
+    catBtns.forEach(b => b.classList.toggle('active', b.dataset.cat === activeCat));
+  }
+  if (params.get('s')) search.value = params.get('s');
+  filter();
+
+  search.addEventListener('input', () => {
+    const p = new URLSearchParams(window.location.search);
+    search.value ? p.set('s', search.value) : p.delete('s');
+    history.replaceState(null, '', '?' + p.toString());
+    filter();
+  });
+
+  catBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      catBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeCat = btn.dataset.cat;
+      const p = new URLSearchParams(window.location.search);
+      activeCat === 'all' ? p.delete('category') : p.set('category', activeCat);
+      history.replaceState(null, '', '?' + p.toString());
+      filter();
+    });
+  });
+
+  function filter() {
+    const q = search.value.toLowerCase();
+    const items = document.querySelectorAll('.grid-item');
+    let visible = 0;
+    items.forEach(item => {
+      const matchCat = activeCat === 'all' || item.dataset.cat === activeCat;
+      const matchQ = item.dataset.title.includes(q) || item.dataset.desc.includes(q);
+      const show = matchCat && matchQ;
+      item.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    document.getElementById('no-results').style.display = visible === 0 ? 'block' : 'none';
+  }
+}
+
+function handleDonate(e) {
+  e.preventDefault();
+  const amt = document.getElementById('donate-amount').value;
+  if (!amt || amt < 1) { alert('Please enter a valid amount.'); return; }
+  alert('Donation coming soon! RM' + parseFloat(amt).toFixed(2));
+}
+</script>
