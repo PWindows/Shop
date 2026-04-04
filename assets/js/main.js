@@ -171,14 +171,9 @@ async function initRegionalPrices() {
     const usePresetMyr = region === 'MY';
     const usePresetCny = region === 'CN';
 
-    let usdToTargetRate = 1;
-    if (!usePresetMyr && !usePresetCny) {
-        const ratePayload = await getUsdRates();
-        const rates = ratePayload && ratePayload.rates ? ratePayload.rates : null;
-        if (rates && typeof rates.USD === 'number') {
-            usdToTargetRate = 1; // Base is USD, so rate = 1
-        }
-    }
+    // Store region for cart calculations
+    window.userRegion = region;
+    window.userCurrency = currencyByRegion(region);
 
     priceNodes.forEach(node => {
         const usd = parseFloat(node.dataset.priceUsd);
@@ -200,10 +195,6 @@ async function initRegionalPrices() {
             node.textContent = formatCurrency(amount, currency);
         }
     });
-
-    // Store region for cart calculations
-    window.userRegion = region;
-    window.userCurrency = currencyByRegion(region);
 }
 
 // Shopping Cart Management

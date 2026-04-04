@@ -42,7 +42,7 @@ title: Shop
         </div>
         <div class="product-footer">
           <span class="product-price js-regional-price" data-price-usd="{{ product.price_usd }}" data-price-myr="{{ product.price_myr }}" data-price-cny="{{ product.price_cny }}">
-            {%- if site.user_region == 'MY' -%}RM{{ product.price_myr }}{%- elsif site.user_region == 'CN' -%}¥{{ product.price_cny }}{%- else -%}${{ product.price_usd }}{%- endif -%}
+            ${{ product.price_usd }}
           </span>
           <button class="product-btn" onclick="addToCart(this.closest('.product-card'))">Add to Cart</button>
         </div>
