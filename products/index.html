@@ -77,7 +77,7 @@ title: Shop
 </div>
 
 <script>
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   const username = sessionStorage.getItem('pw_username');
   const uuid = sessionStorage.getItem('pw_uuid');
 
@@ -90,6 +90,9 @@ window.addEventListener('DOMContentLoaded', () => {
   } else {
     window.location.href = '/?redirect=products';
   }
+
+  // Initialize regional pricing FIRST (before filters)
+  await initRegionalPrices();
 
   initFilters();
 });
