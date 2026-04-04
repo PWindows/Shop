@@ -1,5 +1,5 @@
 {% assign p = include.product %}
-<a href="{{ p.url | relative_url }}" class="product-card {% if p.featured %}product-card--featured{% endif %}">
+<div class="product-card {% if p.featured %}product-card--featured{% endif %}" data-product-id="{{ p.url }}" data-coins="{{ p.coins }}" data-title="{{ p.title }}" data-image="{{ p.image }}" data-stripe-id="{{ p.stripe_price_id }}" data-price-usd="{{ p.price_usd }}" data-price-myr="{{ p.price_myr }}" data-price-cny="{{ p.price_cny }}">
   {% if p.featured %}
   <div class="product-badge">Most Popular</div>
   {% endif %}
@@ -12,7 +12,9 @@
     <p class="product-desc">{{ p.description }}</p>
   </div>
   <div class="product-footer">
-    <span class="product-price">${{ p.price }}</span>
-    <span class="product-btn">Buy Now</span>
+    <span class="product-price js-regional-price" data-price-usd="{{ p.price_usd }}" data-price-myr="{{ p.price_myr }}" data-price-cny="{{ p.price_cny }}">
+      {%- if include.region == 'MY' -%}RM{{ p.price_myr }}{%- elsif include.region == 'CN' -%}¥{{ p.price_cny }}{%- else -%}${{ p.price_usd }}{%- endif -%}
+    </span>
+    <button class="product-btn" onclick="addToCart(this.parentElement.parentElement)">Add to Cart</button>
   </div>
-</a>
+</div>

@@ -458,12 +458,19 @@
   padding: 12px 16px;
   border-top: 1px solid rgba(255,206,2,0.1);
   margin-top: auto;
+  gap: 12px;
 }
 
 .product-prices {
   display: flex;
   flex-direction: column;
   gap: 1px;
+}
+
+.product-price {
+  font-family: 'Minecraft Ten v2', monospace;
+  font-size: 1rem;
+  color: #333;
 }
 
 .product-price--primary {
@@ -476,23 +483,6 @@
   font-family: 'Minecraft Seven v2', monospace;
   font-size: 0.75rem;
   color: #aaa;
-}
-
-.product-cta {
-  background: #ffce02;
-  color: #333;
-  font-family: 'Minecraft Seven v2', monospace;
-  font-size: 0.8rem;
-  font-weight: 700;
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.product-card:hover .product-cta {
-  background: #f0c000;
 }
 
 /* Donate card */
@@ -736,19 +726,387 @@
 }
 
 /* =====================
-   RESPONSIVE
+   SHOPPING CART
+   ===================== */
+
+.cart-btn {
+  position: fixed;
+  top: 20px;
+  right: 40px;
+  z-index: 1004;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #ffce02;
+  border: 2px solid #333;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 206, 2, 0.3);
+}
+
+.cart-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 25px rgba(255, 206, 2, 0.5);
+}
+
+.cart-count {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #e74c3c;
+  color: white;
+  font-family: 'Minecraft Seven v2', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+}
+
+.cart-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0);
+  z-index: 1005;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.cart-overlay.open {
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 1;
+  pointer-events: all;
+}
+
+.cart-sidebar {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  z-index: 1006;
+  transition: right 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -4px 0 30px rgba(0, 0, 0, 0.1);
+}
+
+.cart-sidebar.open {
+  right: 0;
+}
+
+.cart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 206, 2, 0.2);
+  background: rgba(255, 206, 2, 0.04);
+}
+
+.cart-header h2 {
+  font-family: 'Minecraft Ten v2', monospace;
+  font-size: 1.3rem;
+  color: #333;
+  margin: 0;
+}
+
+.cart-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  font-size: 1.5rem;
+  color: #999;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.cart-close:hover {
+  color: #333;
+  transform: rotate(90deg);
+}
+
+.cart-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.cart-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 206, 2, 0.1);
+}
+
+.cart-item-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: #fffbe6;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+.cart-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cart-item-info h4 {
+  font-family: 'Minecraft Seven v2', monospace;
+  font-size: 0.9rem;
+  color: #333;
+  margin: 0 0 3px 0;
+}
+
+.cart-item-coins {
+  font-family: 'Minecraft Seven v2', monospace;
+  font-size: 0.75rem;
+  color: #ffce02;
+  margin: 0 0 3px 0;
+}
+
+.cart-item-price {
+  font-family: 'Minecraft Ten v2', monospace;
+  font-size: 0.9rem;
+  color: #333;
+  margin: 0;
+}
+
+.cart-item-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.qty-btn {
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(255, 206, 2, 0.4);
+  background: #fff;
+  color: #333;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Minecraft Seven v2', monospace;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.qty-btn:hover {
+  background: #ffce02;
+  border-color: #ffce02;
+}
+
+.qty-display {
+  font-family: 'Minecraft Seven v2', monospace;
+  font-size: 0.8rem;
+  color: #333;
+  min-width: 20px;
+  text-align: center;
+}
+
+.cart-item-remove {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: #ffcccc;
+  color: #e74c3c;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.cart-item-remove:hover {
+  background: #e74c3c;
+  color: #fff;
+}
+
+.cart-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(255, 206, 2, 0.2);
+  background: rgba(255, 206, 2, 0.04);
+}
+
+.cart-promo {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.cart-promo-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 206, 2, 0.3);
+  border-radius: 8px;
+  font-family: 'Minecraft Seven v2', monospace;
+  font-size: 0.8rem;
+  color: #333;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.cart-promo-input:focus {
+  border-color: #ffce02;
+  box-shadow: 0 0 0 3px rgba(255, 206, 2, 0.12);
+}
+
+.cart-promo-btn {
+  padding: 10px 12px;
+  background: #f5f5f5;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-family: 'Minecraft Seven v2', monospace;
+  font-size: 0.75rem;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.cart-promo-btn:hover {
+  background: #ffce02;
+  border-color: #ffce02;
+  color: #333;
+}
+
+.cart-promo-msg {
+  font-family: 'Minecraft Seven v2', monospace;
+  font-size: 0.7rem;
+  min-height: 16px;
+  margin-bottom: 12px;
+  color: #666;
+}
+
+.cart-totals {
+  background: white;
+  border: 1px solid rgba(255, 206, 2, 0.2);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+
+.cart-subtotal,
+.cart-discount,
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Minecraft Seven v2', monospace;
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.cart-total {
+  border-top: 1px solid rgba(255, 206, 2, 0.2);
+  padding-top: 8px;
+  margin-bottom: 0;
+  font-weight: 700;
+  color: #333;
+}
+
+.cart-checkout-btn {
+  width: 100%;
+  padding: 14px;
+  background: #ffce02;
+  color: #333;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Minecraft Ten v2', monospace;
+  font-size: 0.9rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cart-checkout-btn:hover:not(:disabled) {
+  background: #f0c000;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 206, 2, 0.4);
+}
+
+.cart-checkout-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Product card button style update */
+.product-btn {
+  background: #ffce02;
+  color: #333;
+  font-family: 'Minecraft Seven v2', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.product-card:hover .product-btn {
+  background: #f0c000;
+}
+
+.product-btn:active {
+  transform: scale(0.95);
+}
+
+/* =====================
+   RESPONSIVE CART
    ===================== */
 
 @media (max-width: 768px) {
-  .gate-card { padding: 36px 24px 28px; }
-  .gate-input-row { flex-direction: column; }
-  .gate-btn { width: 100%; }
-  .gate-alt-row { flex-direction: column; }
-  .product-page { grid-template-columns: 1fr; }
-  .product-page-img-wrap { min-height: 200px; padding: 32px; }
-  .shop-hero { margin: 8px; margin-top: 80px; }
-}
+  .cart-btn {
+    top: 15px;
+    right: 15px;
+    width: 44px;
+    height: 44px;
+  }
 
-@media (max-width: 480px) {
-  .product-grid { grid-template-columns: 1fr; }
+  .cart-sidebar {
+    width: 100%;
+    right: -100%;
+  }
+
+  .cart-item-info h4 {
+    font-size: 0.8rem;
+  }
+
+  .cart-item-price {
+    font-size: 0.8rem;
+  }
 }

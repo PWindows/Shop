@@ -30,7 +30,7 @@ title: Shop
     {% assign products = site.products | sort: 'price_usd' %}
     {% for product in products %}
     <div class="grid-item" data-cat="{{ product.category }}" data-title="{{ product.title | downcase }}" data-desc="{{ product.description | downcase }}">
-      <a href="{{ product.url | relative_url }}" class="product-card {% if product.featured %}product-card--featured{% endif %}">
+      <div class="product-card {% if product.featured %}product-card--featured{% endif %}" data-product-id="{{ product.url }}" data-coins="{{ product.coins }}" data-title="{{ product.title }}" data-image="{{ product.image }}" data-stripe-id="{{ product.stripe_price_id }}" data-price-usd="{{ product.price_usd }}" data-price-myr="{{ product.price_myr }}" data-price-cny="{{ product.price_cny }}">
         {% if product.featured %}<div class="product-badge">Most Popular</div>{% endif %}
         <div class="product-img-wrap">
           <img src="{{ product.image }}" alt="{{ product.title }}" onerror="this.src='/assets/img/products/placeholder.png'" />
@@ -41,13 +41,12 @@ title: Shop
           <p class="product-desc">{{ product.description }}</p>
         </div>
         <div class="product-footer">
-          <div class="product-prices">
-            <span class="product-price product-price--primary">RM{{ product.price_myr }}</span>
-            <span class="product-price product-price--secondary">¥{{ product.price_cny }}</span>
-          </div>
-          <span class="product-cta">Buy</span>
+          <span class="product-price js-regional-price" data-price-usd="{{ product.price_usd }}" data-price-myr="{{ product.price_myr }}" data-price-cny="{{ product.price_cny }}">
+            {%- if site.user_region == 'MY' -%}RM{{ product.price_myr }}{%- elsif site.user_region == 'CN' -%}¥{{ product.price_cny }}{%- else -%}${{ product.price_usd }}{%- endif -%}
+          </span>
+          <button class="product-btn" onclick="addToCart(this.closest('.product-card'))">Add to Cart</button>
         </div>
-      </a>
+      </div>
     </div>
     {% endfor %}
 
@@ -68,7 +67,7 @@ title: Shop
             <span>RM</span>
             <input type="number" id="donate-amount" min="1" step="1" placeholder="10" onclick="event.preventDefault()" />
           </div>
-          <button class="product-cta donate-cta" onclick="handleDonate(event)">Donate</button>
+          <button class="product-btn donate-cta" onclick="handleDonate(event)">Donate</button>
         </div>
       </div>
     </div>
