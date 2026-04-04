@@ -106,6 +106,116 @@ function copyServerIP(button) {
     });
 }
 
+const EUR_REGIONS = new Set([
+    'AT', 'BE', 'CY', 'DE', 'EE', 'ES', 'FI', 'FR', 'GR', 'HR',
+    'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PT', 'SI', 'SK'
+]);
+
+let usdRatesPromise = null;
+
+function detectRegion() {
+    const locales = [navigator.language, ...(navigator.languages || [])].filter(Boolean);
+
+    for (const locale of locales) {
+        try {
+            if (typeof Intl.Locale === 'function') {
+                const region = new Intl.Locale(locale).region;
+                if (region) return region.toUpperCase();
+            }
+        } catch (_) {
+        }
+
+        const match = locale.match(/[-_]([a-z]{2})$/i);
+        if (match) return match[1].toUpperCase();
+    }
+
+    return 'US';
+}
+
+function currencyByRegion(region) {
+    if (region === 'MY') return 'MYR';
+    if (region === 'CN') return 'CNY';
+    if (region === 'GB') return 'GBP';
+    if (region === 'JP') return 'JPY';
+    if (region === 'KR') return 'KRW';
+    if (region === 'IN') return 'INR';
+    if (region === 'AU') return 'AUD';
+    if (region === 'CA') return 'CAD';
+    if (region === 'NZ') return 'NZD';
+    if (EUR_REGIONS.has(region)) return 'EUR';
+    return 'USD';
+}
+
+function formatCurrency(amount, currency) {
+    const noDecimalCurrencies = new Set(['JPY', 'KRW']);
+    const digits = noDecimalCurrencies.has(currency) ? 0 : 2;
+
+    try {
+        return new Intl.NumberFormat(undefined, {
+            style: 'currency',
+            currency,
+            minimumFractionDigits: digits,
+            maximumFractionDigits: digits
+        }).format(amount);
+    } catch (_) {
+        return `$${Number(amount).toFixed(2)}`;
+    }
+}
+
+function getUsdRates() {
+    if (!usdRatesPromise) {
+        usdRatesPromise = fetch('https://open.er-api.com/v6/latest/USD')
+            .then(res => res.ok ? res.json() : null)
+            .catch(() => null);
+    }
+    return usdRatesPromise;
+}
+
+async function initRegionalPrices() {
+    const priceNodes = document.querySelectorAll('.js-regional-price');
+    if (!priceNodes.length) return;
+
+    const region = detectRegion();
+    const targetCurrency = currencyByRegion(region);
+    const usePresetMyr = region === 'MY';
+    const usePresetCny = region === 'CN';
+
+    let usdToTargetRate = 1;
+    if (!usePresetMyr && !usePresetCny && targetCurrency !== 'USD') {
+        const ratePayload = await getUsdRates();
+        const rates = ratePayload && ratePayload.rates ? ratePayload.rates : null;
+        if (rates && typeof rates[targetCurrency] === 'number') {
+            usdToTargetRate = rates[targetCurrency];
+        } else {
+            usdToTargetRate = null;
+        }
+    }
+
+    priceNodes.forEach(node => {
+        const usd = parseFloat(node.dataset.priceUsd);
+        const myr = parseFloat(node.dataset.priceMyr);
+        const cny = parseFloat(node.dataset.priceCny);
+
+        let amount = usd;
+        let currency = 'USD';
+
+        if (usePresetMyr && Number.isFinite(myr)) {
+            amount = myr;
+            currency = 'MYR';
+        } else if (usePresetCny && Number.isFinite(cny)) {
+            amount = cny;
+            currency = 'CNY';
+        } else if (Number.isFinite(usd) && usdToTargetRate && targetCurrency !== 'USD') {
+            amount = usd * usdToTargetRate;
+            currency = targetCurrency;
+        }
+
+        if (Number.isFinite(amount)) {
+            node.textContent = formatCurrency(amount, currency);
+        }
+    });
+}
+
 // Initialize everything when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     // Setup hamburger menu
