@@ -30,23 +30,25 @@ title: Shop
     {% assign products = site.products | sort: 'price_usd' %}
     {% for product in products %}
     <div class="grid-item" data-cat="{{ product.category }}" data-title="{{ product.title | downcase }}" data-desc="{{ product.description | downcase }}">
-      <div class="product-card {% if product.featured %}product-card--featured{% endif %}" data-product-id="{{ product.url }}" data-coins="{{ product.coins }}" data-title="{{ product.title }}" data-image="{{ product.image }}" data-stripe-id="{{ product.stripe_price_id }}" data-price-usd="{{ product.price_usd }}" data-price-myr="{{ product.price_myr }}" data-price-cny="{{ product.price_cny }}">
-        {% if product.featured %}<div class="product-badge">Most Popular</div>{% endif %}
-        <div class="product-img-wrap">
-          <img src="{{ product.image }}" alt="{{ product.title }}" onerror="this.src='/assets/img/products/placeholder.png'" />
+      <a href="{{ product.url | relative_url }}" class="product-card-link">
+        <div class="product-card {% if product.featured %}product-card--featured{% endif %}" data-product-id="{{ product.url }}" data-coins="{{ product.coins }}" data-title="{{ product.title }}" data-image="{{ product.image }}" data-stripe-id="{{ product.stripe_price_id }}" data-price-usd="{{ product.price_usd }}" data-price-myr="{{ product.price_myr }}" data-price-cny="{{ product.price_cny }}">
+          {% if product.featured %}<div class="product-badge">Most Popular</div>{% endif %}
+          <div class="product-img-wrap">
+            <img src="{{ product.image }}" alt="{{ product.title }}" onerror="this.src='/assets/img/products/placeholder.png'" />
+          </div>
+          <div class="product-body">
+            <p class="product-coins">{{ product.coins | number_with_delimiter }} PCoins</p>
+            <h3 class="product-name">{{ product.title }}</h3>
+            <p class="product-desc">{{ product.description }}</p>
+          </div>
+          <div class="product-footer">
+            <span class="product-price js-regional-price" data-price-usd="{{ product.price_usd }}" data-price-myr="{{ product.price_myr }}" data-price-cny="{{ product.price_cny }}">
+              ${{ product.price_usd }}
+            </span>
+          </div>
         </div>
-        <div class="product-body">
-          <p class="product-coins">{{ product.coins | number_with_delimiter }} PCoins</p>
-          <h3 class="product-name">{{ product.title }}</h3>
-          <p class="product-desc">{{ product.description }}</p>
-        </div>
-        <div class="product-footer">
-          <span class="product-price js-regional-price" data-price-usd="{{ product.price_usd }}" data-price-myr="{{ product.price_myr }}" data-price-cny="{{ product.price_cny }}">
-            ${{ product.price_usd }}
-          </span>
-          <button class="product-btn" onclick="addToCart(this.closest('.product-card'))">Add to Cart</button>
-        </div>
-      </div>
+      </a>
+      <button class="product-btn" onclick="addToCart(document.querySelector('.product-card[data-product-id=\\'{{ product.url }}\\']')); event.stopPropagation();">Add to Cart</button>
     </div>
     {% endfor %}
 

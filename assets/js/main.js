@@ -114,21 +114,29 @@ const EUR_REGIONS = new Set([
 let usdRatesPromise = null;
 
 function detectRegion() {
+    // Try to get region from browser language settings
     const locales = [navigator.language, ...(navigator.languages || [])].filter(Boolean);
 
     for (const locale of locales) {
         try {
             if (typeof Intl.Locale === 'function') {
                 const region = new Intl.Locale(locale).region;
-                if (region) return region.toUpperCase();
+                if (region) {
+                    console.log('Detected region from Intl.Locale:', region);
+                    return region.toUpperCase();
+                }
             }
         } catch (_) {
         }
 
         const match = locale.match(/[-_]([a-z]{2})$/i);
-        if (match) return match[1].toUpperCase();
+        if (match) {
+            console.log('Detected region from locale match:', match[1]);
+            return match[1].toUpperCase();
+        }
     }
 
+    console.log('No region detected, defaulting to US');
     return 'US';
 }
 
@@ -165,20 +173,30 @@ function getUsdRates() {
 
 async function initRegionalPrices() {
     const priceNodes = document.querySelectorAll('.js-regional-price');
+    console.log('Found price nodes:', priceNodes.length);
+
     if (!priceNodes.length) return;
 
     const region = detectRegion();
     const usePresetMyr = region === 'MY';
     const usePresetCny = region === 'CN';
 
+    console.log('Detected region:', region);
+    console.log('Use MYR?', usePresetMyr);
+    console.log('Use CNY?', usePresetCny);
+
     // Store region for cart calculations
     window.userRegion = region;
     window.userCurrency = currencyByRegion(region);
 
-    priceNodes.forEach(node => {
+    console.log('User currency:', window.userCurrency);
+
+    priceNodes.forEach((node, idx) => {
         const usd = parseFloat(node.dataset.priceUsd);
         const myr = parseFloat(node.dataset.priceMyr);
         const cny = parseFloat(node.dataset.priceCny);
+
+        console.log(`Node ${idx}: USD=${usd}, MYR=${myr}, CNY=${cny}`);
 
         let amount = usd;
         let currency = 'USD';
@@ -192,7 +210,9 @@ async function initRegionalPrices() {
         }
 
         if (Number.isFinite(amount)) {
-            node.textContent = formatCurrency(amount, currency);
+            const formatted = formatCurrency(amount, currency);
+            console.log(`Setting node ${idx} to: ${formatted}`);
+            node.textContent = formatted;
         }
     });
 }

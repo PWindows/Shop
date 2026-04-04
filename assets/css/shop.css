@@ -369,6 +369,17 @@
   gap: 20px;
 }
 
+.grid-item {
+  position: relative;
+}
+
+.product-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
+}
+
 .product-card {
   background: rgba(255,255,255,0.97);
   border: 1px solid rgba(255,206,2,0.2);
@@ -454,11 +465,12 @@
 .product-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 12px 16px;
   border-top: 1px solid rgba(255,206,2,0.1);
   margin-top: auto;
   gap: 12px;
+  padding-right: 80px;
 }
 
 .product-prices {
@@ -1075,10 +1087,15 @@
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 10;
 }
 
-.product-card:hover .product-btn {
+.product-btn:hover {
   background: #f0c000;
+  transform: scale(1.05);
 }
 
 .product-btn:active {
