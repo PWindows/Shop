@@ -113,40 +113,46 @@ const EUR_REGIONS = new Set([
 
 let usdRatesPromise = null;
 
-function detectRegion() {
-    // Try browser language first
-    const browserLang = navigator.language || navigator.userLanguage || '';
-    console.log('Browser language:', browserLang);
+let locationPromise = null;
 
-    // Check all available languages too
+function getLocationFromIP() {
+    if (!locationPromise) {
+        locationPromise = fetch('https://ipapi.co/json/')
+            .then(res => res.ok ? res.json() : null)
+            .then(data => {
+                if (data && data.country_code) {
+                    console.log('IP Geolocation country:', data.country_code);
+                    return data.country_code.toUpperCase();
+                }
+                return null;
+            })
+            .catch(err => {
+                console.error('Geolocation API error:', err);
+                return null;
+            });
+    }
+    return locationPromise;
+}
+
+function detectRegion() {
+    // This will be overridden by IP geolocation
+    // Fallback to browser language only if geolocation fails
+    const browserLang = navigator.language || navigator.userLanguage || '';
     const allLangs = [browserLang, ...(navigator.languages || [])].filter(Boolean);
-    console.log('All languages:', allLangs);
 
     for (const locale of allLangs) {
-        // Try Intl.Locale first (more reliable)
         try {
             if (typeof Intl.Locale === 'function') {
                 const intlLocale = new Intl.Locale(locale);
                 const region = intlLocale.region;
-                if (region) {
-                    console.log(`Intl.Locale("${locale}").region = ${region}`);
-                    return region.toUpperCase();
-                }
+                if (region) return region.toUpperCase();
             }
-        } catch (e) {
-            console.log(`Intl.Locale failed for ${locale}:`, e.message);
-        }
+        } catch (e) {}
 
-        // Fallback: manual regex parsing
         const match = locale.match(/[-_]([A-Z]{2})/i);
-        if (match) {
-            const region = match[1].toUpperCase();
-            console.log(`Regex match for "${locale}" = ${region}`);
-            return region;
-        }
+        if (match) return match[1].toUpperCase();
     }
 
-    console.log('No region detected, defaulting to US');
     return 'US';
 }
 
@@ -187,7 +193,15 @@ async function initRegionalPrices() {
 
     if (!priceNodes.length) return;
 
-    const region = detectRegion();
+    // Get region from IP geolocation first, fallback to browser language
+    let region = await getLocationFromIP();
+    if (!region) {
+        region = detectRegion();
+        console.log('IP geolocation failed, using browser language fallback:', region);
+    } else {
+        console.log('Using IP geolocation region:', region);
+    }
+
     const usePresetMyr = region === 'MY';
     const usePresetCny = region === 'CN';
 
