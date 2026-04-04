@@ -24,16 +24,8 @@ layout: default
 
       <div class="product-page-prices">
         <div class="price-option price-option--primary">
-          <span class="price-label">Malaysia</span>
-          <span class="price-value">RM{{ page.price_myr }}</span>
-        </div>
-        <div class="price-option">
-          <span class="price-label">China</span>
-          <span class="price-value">¥{{ page.price_cny }}</span>
-        </div>
-        <div class="price-option">
-          <span class="price-label">USD</span>
-          <span class="price-value">${{ page.price_usd }}</span>
+          <span class="price-label" id="price-label">USD</span>
+          <span class="price-value js-regional-price" id="product-page-price" data-price-usd="{{ page.price_usd }}" data-price-myr="{{ page.price_myr }}" data-price-cny="{{ page.price_cny }}">${{ page.price_usd }}</span>
         </div>
       </div>
 
@@ -44,7 +36,7 @@ layout: default
       <p class="promo-msg" id="promo-msg"></p>
 
       <button class="buy-btn" id="buy-btn" onclick="handleBuy()">
-        Buy Now — RM{{ page.price_myr }}
+        Buy Now — <span id="buy-price">RM{{ page.price_myr }}</span>
       </button>
       <p class="buy-note">You'll be redirected to Stripe's secure checkout.</p>
     </div>
@@ -62,7 +54,45 @@ window.addEventListener('DOMContentLoaded', () => {
   if (!username || !uuid) {
     window.location.href = '/?redirect={{ page.url }}';
   }
+
+  // Initialize regional pricing for product page
+  initRegionalPrices();
+  updateProductPagePrice();
 });
+
+function updateProductPagePrice() {
+  const region = window.userRegion || 'US';
+  const priceNode = document.getElementById('product-page-price');
+  const labelNode = document.getElementById('price-label');
+  const buyPriceNode = document.getElementById('buy-price');
+
+  if (!priceNode) return;
+
+  const usd = parseFloat(priceNode.dataset.priceUsd);
+  const myr = parseFloat(priceNode.dataset.priceMyr);
+  const cny = parseFloat(priceNode.dataset.priceCny);
+
+  let amount = usd;
+  let currency = 'USD';
+  let label = 'USD';
+
+  if (region === 'MY') {
+    amount = myr;
+    currency = 'MYR';
+    label = 'Malaysia';
+  } else if (region === 'CN') {
+    amount = cny;
+    currency = 'CNY';
+    label = 'China';
+  }
+
+  if (Number.isFinite(amount)) {
+    const formatted = formatCurrency(amount, currency);
+    priceNode.textContent = formatted;
+    if (labelNode) labelNode.textContent = label;
+    if (buyPriceNode) buyPriceNode.textContent = formatted;
+  }
+}
 
 function applyPromo() {
   const code = document.getElementById('promo-input').value.trim().toUpperCase();
@@ -99,7 +129,10 @@ async function handleBuy() {
   // window.location.href = session.url;
 
   alert('Checkout coming soon!');
-  btn.textContent = 'Buy Now — RM{{ page.price_myr }}';
+  const region = window.userRegion || 'US';
+  const priceNode = document.getElementById('product-page-price');
+  const formatted = priceNode ? priceNode.textContent : 'RM{{ page.price_myr }}';
+  btn.textContent = `Buy Now — ${formatted}`;
   btn.disabled = false;
 }
 </script>

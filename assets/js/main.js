@@ -114,25 +114,35 @@ const EUR_REGIONS = new Set([
 let usdRatesPromise = null;
 
 function detectRegion() {
-    // Try to get region from browser language settings
-    const locales = [navigator.language, ...(navigator.languages || [])].filter(Boolean);
+    // Try browser language first
+    const browserLang = navigator.language || navigator.userLanguage || '';
+    console.log('Browser language:', browserLang);
 
-    for (const locale of locales) {
+    // Check all available languages too
+    const allLangs = [browserLang, ...(navigator.languages || [])].filter(Boolean);
+    console.log('All languages:', allLangs);
+
+    for (const locale of allLangs) {
+        // Try Intl.Locale first (more reliable)
         try {
             if (typeof Intl.Locale === 'function') {
-                const region = new Intl.Locale(locale).region;
+                const intlLocale = new Intl.Locale(locale);
+                const region = intlLocale.region;
                 if (region) {
-                    console.log('Detected region from Intl.Locale:', region);
+                    console.log(`Intl.Locale("${locale}").region = ${region}`);
                     return region.toUpperCase();
                 }
             }
-        } catch (_) {
+        } catch (e) {
+            console.log(`Intl.Locale failed for ${locale}:`, e.message);
         }
 
-        const match = locale.match(/[-_]([a-z]{2})$/i);
+        // Fallback: manual regex parsing
+        const match = locale.match(/[-_]([A-Z]{2})/i);
         if (match) {
-            console.log('Detected region from locale match:', match[1]);
-            return match[1].toUpperCase();
+            const region = match[1].toUpperCase();
+            console.log(`Regex match for "${locale}" = ${region}`);
+            return region;
         }
     }
 
