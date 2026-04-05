@@ -255,7 +255,7 @@ function saveCart(cart) {
     updateCartUI();
 }
 
-function addToCart(productElement) {
+function addToCart(productElement, btnElement) {
     const productId = productElement.dataset.productId;
     const coins = parseInt(productElement.dataset.coins);
     const title = productElement.dataset.title;
@@ -288,10 +288,11 @@ function addToCart(productElement) {
     saveCart(cart);
 
     // Show feedback
-    const btn = productElement.querySelector('.product-btn');
-    const original = btn.textContent;
-    btn.textContent = 'Added! ?';
-    setTimeout(() => { btn.textContent = original; }, 2000);
+    if (btnElement) {
+        const original = btnElement.textContent;
+        btnElement.textContent = 'Added! ✓';
+        setTimeout(() => { btnElement.textContent = original; }, 2000);
+    }
 }
 
 function removeFromCart(productId) {
