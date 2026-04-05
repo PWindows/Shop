@@ -360,10 +360,10 @@ function updateCartUI() {
                     <p class="cart-item-price">${formatCurrency(getPrice(item), window.userCurrency || 'USD')}</p>
                 </div>
                 <div class="cart-item-controls">
-                    <button class="qty-btn" onclick="updateCartItemQuantity('${item.productId}', ${item.quantity - 1})">?</button>
+                    <button class="qty-btn" onclick="updateCartItemQuantity('${item.productId}', ${item.quantity - 1})">−</button>
                     <span class="qty-display">${item.quantity}</span>
                     <button class="qty-btn" onclick="updateCartItemQuantity('${item.productId}', ${item.quantity + 1})">+</button>
-                    <button class="cart-item-remove" onclick="removeFromCart('${item.productId}')">?</button>
+                    <button class="cart-item-remove" onclick="removeFromCart('${item.productId}')">🗑</button>
                 </div>
             </div>
         `).join('');
