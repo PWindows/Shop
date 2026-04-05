@@ -255,15 +255,28 @@ function saveCart(cart) {
     updateCartUI();
 }
 
-function addToCart(productElement, btnElement) {
+function addToCart(btnElement) {
+    // Find the product card from the button's parent grid-item
+    const gridItem = btnElement.closest('.grid-item');
+    if (!gridItem) {
+        console.error('Could not find grid-item');
+        return;
+    }
+
+    const productElement = gridItem.querySelector('.product-card');
+    if (!productElement) {
+        console.error('Could not find product-card');
+        return;
+    }
+
     const productId = productElement.dataset.productId;
-    const coins = parseInt(productElement.dataset.coins);
-    const title = productElement.dataset.title;
-    const image = productElement.dataset.image;
-    const stripeId = productElement.dataset.stripeId;
-    const priceUsd = parseFloat(productElement.dataset.priceUsd);
-    const priceMyr = parseFloat(productElement.dataset.priceMyr);
-    const priceCny = parseFloat(productElement.dataset.priceCny);
+    const coins = parseInt(productElement.dataset.coins) || 0;
+    const title = productElement.dataset.title || 'Unknown';
+    const image = productElement.dataset.image || '/assets/img/products/placeholder.png';
+    const stripeId = productElement.dataset.stripeId || '';
+    const priceUsd = parseFloat(productElement.dataset.priceUsd) || 0;
+    const priceMyr = parseFloat(productElement.dataset.priceMyr) || 0;
+    const priceCny = parseFloat(productElement.dataset.priceCny) || 0;
 
     const cart = getCart();
 
@@ -288,11 +301,9 @@ function addToCart(productElement, btnElement) {
     saveCart(cart);
 
     // Show feedback
-    if (btnElement) {
-        const original = btnElement.textContent;
-        btnElement.textContent = 'Added! ✓';
-        setTimeout(() => { btnElement.textContent = original; }, 2000);
-    }
+    const original = btnElement.textContent;
+    btnElement.textContent = 'Added! ✓';
+    setTimeout(() => { btnElement.textContent = original; }, 2000);
 }
 
 function removeFromCart(productId) {
