@@ -437,31 +437,53 @@ async function checkoutFromCart() {
 
     const btn = document.getElementById('cart-checkout-btn');
     btn.disabled = true;
-    btn.textContent = 'Redirecting to Stripe...';
+    btn.textContent = 'Processing...';
 
     try {
         const promoCode = localStorage.getItem(PROMO_STORAGE_KEY);
         const region = window.userRegion || 'US';
 
-        // TODO: Call your Cloudflare Worker or backend to create Stripe checkout session
-        // Body: {
-        //   items: cart.map(item => ({
-        //     stripe_price_id: item.stripeId,
-        //     quantity: item.quantity
-        //   })),
-        //   player_uuid: uuid,
-        //   username,
-        //   promo: promoCode,
-        //   region
-        // }
-        // Response: { session_url: "https://checkout.stripe.com/..." }
+        // Prepare cart data for Stripe
+        const checkoutData = {
+            items: cart.map(item => ({
+                stripe_price_id: item.stripeId,
+                quantity: item.quantity,
+                name: item.title,
+                amount: getPrice(item),
+                currency: window.userCurrency
+            })),
+            player_uuid: uuid,
+            username: username,
+            promo: promoCode,
+            region: region
+        };
 
-        alert('Checkout coming soon! Cart saved locally.');
-        btn.disabled = false;
-        btn.textContent = 'Proceed to Checkout';
+        console.log('Sending to checkout:', checkoutData);
+
+        // TODO: Replace with your actual Cloudflare Worker URL
+        const response = await fetch('https://your-worker.example.com/create-checkout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(checkoutData)
+        });
+
+        if (!response.ok) {
+            throw new Error('Checkout failed');
+        }
+
+        const session = await response.json();
+
+        if (session.session_url) {
+            // Redirect to Stripe checkout
+            window.location.href = session.session_url;
+        } else if (session.error) {
+            alert('Error: ' + session.error);
+        }
     } catch (e) {
         console.error('Checkout error:', e);
-        alert('Checkout error. Please try again.');
+        alert('Checkout error. Please try again.\n\nError: ' + e.message);
         btn.disabled = false;
         btn.textContent = 'Proceed to Checkout';
     }

@@ -51,7 +51,7 @@ title: Shop
     {% endfor %}
 
     <div class="grid-item donate-wrap" data-cat="donate" data-title="donate support" data-desc="donate any amount support pwindows">
-      <div class="product-card donate-card">
+      <div class="product-card donate-card" data-product-id="donate" data-coins="0" data-title="Support PWindows" data-image="/assets/img/logo.png" data-stripe-id="donate" data-price-usd="1" data-price-myr="5" data-price-cny="10">
         <div class="product-img-wrap donate-heart">
           <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
             <path d="M28 48C28 48 6 34 6 20A11 11 0 0128 14a11 11 0 0122 6C50 34 28 48 28 48z" fill="#ffce02"/>
@@ -64,12 +64,12 @@ title: Shop
         </div>
         <div class="product-footer donate-footer">
           <div class="donate-input-wrap">
-            <span>RM</span>
-            <input type="number" id="donate-amount" min="1" step="1" placeholder="10" onclick="event.preventDefault()" />
+            <span id="donate-currency">RM</span>
+            <input type="number" id="donate-amount" min="1" step="1" placeholder="10" />
           </div>
-          <button class="product-btn donate-cta" onclick="handleDonate(event)">Donate</button>
         </div>
       </div>
+      <button class="product-btn" onclick="addDonationToCart(); event.stopPropagation();">Add to Cart</button>
     </div>
 
   </div>
@@ -93,6 +93,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // Initialize regional pricing FIRST (before filters)
   await initRegionalPrices();
+
+  // Update donate currency label
+  updateDonateCurrency();
 
   initFilters();
 });
@@ -155,5 +158,47 @@ function handleDonate(e) {
   const amt = document.getElementById('donate-amount').value;
   if (!amt || amt < 1) { alert('Please enter a valid amount.'); return; }
   alert('Donation coming soon! RM' + parseFloat(amt).toFixed(2));
+}
+
+function updateDonateCurrency() {
+  const currency = window.userCurrency || 'USD';
+  const currencySymbol = currency === 'MYR' ? 'RM' : currency === 'CNY' ? '¥' : '$';
+  document.getElementById('donate-currency').textContent = currencySymbol;
+}
+
+function addDonationToCart() {
+  const amt = document.getElementById('donate-amount').value;
+  if (!amt || amt < 1) { 
+    alert('Please enter a valid amount.'); 
+    return; 
+  }
+
+  const currency = window.userCurrency || 'USD';
+  let priceInCurrency = parseFloat(amt);
+
+  // If they entered RM but we need to store the equivalent, use the input as-is
+  // The cart will display it correctly based on their currency
+
+  const donationItem = {
+    productId: 'donate_' + Date.now(),
+    coins: 0,
+    title: `Support PWindows - ${currencySymbol}${amt}`,
+    image: '/assets/img/logo.png',
+    stripeId: 'donate',
+    priceUsd: currency === 'USD' ? priceInCurrency : priceInCurrency / 4.3, // rough conversion
+    priceMyr: currency === 'MYR' ? priceInCurrency : priceInCurrency * 4.3,
+    priceCny: currency === 'CNY' ? priceInCurrency : priceInCurrency * 6,
+    quantity: 1,
+    isDonation: true,
+    donationAmount: parseFloat(amt)
+  };
+
+  let cart = getCart();
+  cart.push(donationItem);
+  saveCart(cart);
+
+  // Show feedback
+  document.getElementById('donate-amount').value = '';
+  alert('Donation added to cart!');
 }
 </script>

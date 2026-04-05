@@ -35,10 +35,10 @@ layout: default
       </div>
       <p class="promo-msg" id="promo-msg"></p>
 
-      <button class="buy-btn" id="buy-btn" onclick="handleBuy()">
-        Buy Now — <span id="buy-price">RM{{ page.price_myr }}</span>
+      <button class="buy-btn" id="buy-btn" onclick="addProductToCart()">
+        Add to Cart — <span id="buy-price">RM{{ page.price_myr }}</span>
       </button>
-      <p class="buy-note">You'll be redirected to Stripe's secure checkout.</p>
+      <p class="buy-note">Added items will appear in your shopping cart.</p>
     </div>
   </div>
 </div>
@@ -120,19 +120,46 @@ async function handleBuy() {
     return;
   }
 
-  btn.textContent = 'Redirecting...';
+  btn.textContent = 'Adding...';
   btn.disabled = true;
 
-  // TODO: POST to Cloudflare Worker
-  // Body: { stripe_price_id: STRIPE_PRICE_ID, player_uuid: uuid, username, promo: promoCode }
-  // Worker creates Stripe Checkout session and returns URL
-  // window.location.href = session.url;
+  // Add to cart
+  await addProductToCart();
 
-  alert('Checkout coming soon!');
-  const region = window.userRegion || 'US';
-  const priceNode = document.getElementById('product-page-price');
-  const formatted = priceNode ? priceNode.textContent : 'RM{{ page.price_myr }}';
-  btn.textContent = `Buy Now — ${formatted}`;
   btn.disabled = false;
+  btn.textContent = 'Add to Cart — ' + document.getElementById('buy-price').textContent;
+}
+
+function addProductToCart() {
+  const priceNode = document.getElementById('product-page-price');
+  const usd = parseFloat(priceNode.dataset.priceUsd);
+  const myr = parseFloat(priceNode.dataset.priceMyr);
+  const cny = parseFloat(priceNode.dataset.priceCny);
+
+  const productItem = {
+    productId: '{{ page.url }}',
+    coins: parseInt('{{ page.coins }}'),
+    title: '{{ page.title }}',
+    image: '{{ page.image }}',
+    stripeId: '{{ page.stripe_price_id }}',
+    priceUsd: usd,
+    priceMyr: myr,
+    priceCny: cny,
+    quantity: 1
+  };
+
+  let cart = getCart();
+  const existing = cart.find(item => item.productId === productItem.productId);
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.push(productItem);
+  }
+
+  saveCart(cart);
+
+  // Show feedback and redirect
+  alert('Added to cart!');
+  window.location.href = '/products';
 }
 </script>
