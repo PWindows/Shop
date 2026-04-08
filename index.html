@@ -71,32 +71,18 @@ async function handleEnter() {
 
   try {
     // Step 1: get UUID from Mojang
-    const mojangRes = await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`);
-
-    if (!mojangRes.ok) {
-      error.textContent = 'That Minecraft account doesn\'t exist.';
-      reset(btn, input);
-      return;
-    }
-
-    const mojang = await mojangRes.json();
-    const uuid = mojang.id;
-    const formattedUUID = `${uuid.slice(0,8)}-${uuid.slice(8,12)}-${uuid.slice(12,16)}-${uuid.slice(16,20)}-${uuid.slice(20)}`;
-
-    // Step 2: check against PWindows database
-    // TODO: replace with your actual Cloudflare Worker URL
-    const dbRes = await fetch(`https://api.pwindows.qzz.io/verify?uuid=${formattedUUID}`);
-    const db = await dbRes.json();
-
-    if (!db.exists) {
+    const res = await fetch(`https://api.pwindows.qzz.io/shop/login?username=${username}`);
+    const data = await res.json();
+    
+    if (!data.exists) {
       error.textContent = 'You haven\'t joined PWindows yet!';
       hint.textContent = 'Join at play.pwindows.qzz.io first, then come back.';
       reset(btn, input);
       return;
     }
-
-    // Success — store in session and show success screen
-    sessionStorage.setItem('pw_username', mojang.name);
+    
+    const formattedUUID = data.uuid;
+    sessionStorage.setItem('pw_username', data.username);
     sessionStorage.setItem('pw_uuid', formattedUUID);
 
     document.getElementById('gate-main').style.display = 'none';
