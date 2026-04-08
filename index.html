@@ -88,7 +88,7 @@ async function handleEnter() {
     document.getElementById('gate-main').style.display = 'none';
     const success = document.getElementById('gate-success');
     success.style.display = 'flex';
-    document.getElementById('gate-welcome').textContent = `Hey, ${mojang.name}!`;
+    document.getElementById('gate-welcome').textContent = `Hey, ${data.username}!`;
     document.getElementById('gate-avatar').style.backgroundImage =
       `url('https://crafatar.com/avatars/${formattedUUID}?size=80&overlay')`;
 
