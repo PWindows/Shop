@@ -1,6 +1,6 @@
 ---
 layout: product
-title: Undefined
+title: undefined
 price_myr: 249.99
 price_cny: 499.99
 price_usd: 70.00
