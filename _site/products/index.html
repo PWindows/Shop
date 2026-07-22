@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    
+    
+    
+    
+    
+    
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PCoins Shop | PWindows Shop</title>
+    <link rel="canonical" href="http://localhost:4000/products/" />
+    <meta name="title" content="PCoins Shop | PWindows Shop" />
+    <meta name="description" content="Browse PCoins bundles and support PWindows." />
+    <meta name="application-name" content="PWindows Shop" />
+    <meta name="author" content="PWindows" />
+    <meta name="theme-color" content="#ffffff" />
+
+    <meta property="og:site_name" content="PWindows" />
+    <meta property="og:title" content="PCoins Shop | PWindows Shop" />
+    <meta property="og:description" content="Browse PCoins bundles and support PWindows." />
+    <meta property="og:image" content="http://localhost:4000/assets/PWindows.png" />
+    <meta property="og:url" content="http://localhost:4000/products/" />
+    <meta property="og:type" content="website" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="PCoins Shop | PWindows Shop" />
+    <meta name="twitter:description" content="Browse PCoins bundles and support PWindows." />
+    <meta name="twitter:image" content="http://localhost:4000/assets/PWindows.png" />
+
+    <link rel="icon" type="image/x-icon" href="/assets/icons/site/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/site/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/site/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/site/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/site/android-chrome-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/icons/site/android-chrome-512x512.png" />
+    <link rel="manifest" href="/assets/manifest.json" />
+
+    <link rel="stylesheet" href="/assets/css/style.css?v=1784741309" />
+    <link rel="stylesheet" href="/assets/css/shop.css?v=1784741309" />
+    
+  </head>
+  <body>
+    <div class="menu-overlay" id="mobileMenu" aria-hidden="true" inert>
+  <nav class="nav-menu" aria-label="Site menu">
+    
+    <a href="https://www.pwindows.qzz.io/about" class="nav-item btn">
+      <img class="nav-item-icon" src="/assets/mojang/svg/icons/book.png" alt="" aria-hidden="true" />
+      About
+    </a>
+    
+    <a href="https://www.pwindows.qzz.io/articles" class="nav-item btn">
+      <img class="nav-item-icon" src="/assets/mojang/Invicon_Map.png" alt="" aria-hidden="true" />
+      Newest News
+    </a>
+    
+    <a href="https://www.pwindows.qzz.io/staff" class="nav-item btn">
+      <img class="nav-item-icon" src="/assets/mojang/svg/icons/color-two-players.svg" alt="" aria-hidden="true" />
+      Staff
+    </a>
+    
+    <a href="https://www.pwindows.qzz.io/departments/" class="nav-item btn">
+      <img class="nav-item-icon" src="/assets/mojang/svg/icons/color-chest.svg" alt="" aria-hidden="true" />
+      Departments
+    </a>
+    
+    <a href="https://www.pwindows.qzz.io/games" class="nav-item btn">
+      <img class="nav-item-icon" src="/assets/icons/controller.png" alt="" aria-hidden="true" />
+      Games
+    </a>
+    
+
+    <button class="nav-item btn btn-gold nav-bottom" type="button" disabled>
+      <img class="nav-item-icon" src="/assets/mojang/svg/icons/what-block.svg" alt="" aria-hidden="true" />
+      Join Server
+    </button>
+    <button class="nav-item btn btn-green" type="button" disabled>
+      <img class="nav-item-icon" src="/assets/mojang/svg/icons/color-grass-block.png" alt="" aria-hidden="true" />
+      Launch Minecraft Bedrock
+    </button>
+
+    <div class="menu-footer">
+      <p>Connect with PWindows</p>
+      <div class="social-links">
+        <a href="https://discord.pwindows.qzz.io/" class="social-link no-icon" aria-label="PWindows on Discord">
+          <img class="social-link-img" src="/assets/mojang/svg/icons/discord.png" alt="" />
+        </a>
+        <a href="https://www.youtube.com/@PWindows" class="social-link no-icon" aria-label="PWindows on YouTube">
+          <img class="social-link-img" src="/assets/mojang/svg/icons/color-youtube.svg" alt="" />
+        </a>
+        <a href="https://x.com/pwindowsz" class="social-link no-icon" aria-label="PWindows on Twitter">
+          <img class="social-link-img social-link-img--compact" src="/assets/mojang/svg/icons/color-twitter.svg" alt="" />
+        </a>
+      </div>
+    </div>
+  </nav>
+</div>
+
+<nav class="topbar" aria-label="Primary navigation">
+  <button class="hamburger" id="hamburger" type="button" aria-label="Open site menu" aria-controls="mobileMenu" aria-expanded="false">
+    <span class="hamburger-lines" aria-hidden="true"><span></span><span></span><span></span></span>
+  </button>
+
+  <a class="logo" href="/" aria-label="PWindows Shop home">
+    <img src="/assets/PWindows.png" alt="PWindows" class="logo-img" />
+  </a>
+
+  <button class="cart-btn launch-btn-top btn btn-green" id="cart-btn" type="button" aria-label="Open shopping cart" aria-controls="cart-sidebar" aria-expanded="false">
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M9 2a1 1 0 0 0-1 1v1H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-4V3a1 1 0 1 0-2 0v1h-4V3a1 1 0 0 0-1-1Zm7 4h4v14H4V6h4v1a1 1 0 0 0 2 0V6h4v1a1 1 0 1 0 2 0V6Z" fill="currentColor" />
+    </svg>
+    <span class="cart-label">Cart</span>
+    <span class="cart-count" id="cart-count" hidden>0</span>
+  </button>
+</nav>
+
+<div class="cart-overlay" id="cart-overlay" aria-hidden="true"></div>
+<aside class="cart-sidebar" id="cart-sidebar" aria-labelledby="cart-heading" aria-hidden="true" inert>
+  <div class="cart-header">
+    <h2 id="cart-heading">Shopping Cart</h2>
+    <button class="cart-close btn" id="cart-close" type="button" aria-label="Close shopping cart">&times;</button>
+  </div>
+  <div class="cart-items" id="cart-items"></div>
+  <div class="cart-footer">
+    <div class="cart-promo">
+      <label class="sr-only" for="cart-promo-input">Promo code</label>
+      <input type="text" id="cart-promo-input" class="cart-promo-input" placeholder="Promo code..." />
+      <button class="cart-promo-btn btn" id="cart-promo-btn" type="button">Apply</button>
+    </div>
+    <p class="cart-promo-msg" id="cart-promo-msg" aria-live="polite"></p>
+    <div class="cart-totals">
+      <div class="cart-subtotal"><span>Subtotal:</span><span id="cart-subtotal">$0.00</span></div>
+      <div class="cart-discount" id="cart-discount-row" hidden><span>Discount:</span><span id="cart-discount">-$0.00</span></div>
+      <div class="cart-total"><span>Total:</span><span id="cart-total">$0.00</span></div>
+    </div>
+    <button class="cart-checkout-btn btn btn-green" id="cart-checkout-btn" type="button">Proceed to Checkout</button>
+  </div>
+</aside>
+
+    <div class="sr-only" id="site-status" role="status" aria-live="polite"></div>
+    <main id="main-content"><section class="shop-hero" aria-labelledby="shop-title">
+  <div class="shop-hero-inner">
+    <div class="shop-user-pill" id="shop-user-pill" hidden>
+      <div class="shop-user-avatar" id="shop-user-avatar" aria-hidden="true"></div>
+      <span id="shop-user-name"></span>
+      <button class="shop-user-switch" id="shop-user-switch" type="button">Switch player</button>
+    </div>
+    <h1 class="shop-title" id="shop-title">PCoins Shop</h1>
+    <p class="shop-sub">Buy PCoins and spend them in-game.</p>
+
+    <div class="shop-controls">
+      <label class="sr-only" for="shop-search">Search bundles</label>
+      <input type="search" id="shop-search" class="shop-search" placeholder="Search bundles..." />
+      <div class="shop-cats" aria-label="Product categories">
+        <button class="cat-btn btn active" type="button" data-cat="all" aria-pressed="true">All</button>
+        <button class="cat-btn btn" type="button" data-cat="coins" aria-pressed="false">Coins</button>
+        <button class="cat-btn btn" type="button" data-cat="donate" aria-pressed="false">Support</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="transition-section" aria-hidden="true"></div>
+
+<section class="shop-wrap" aria-label="Products">
+  <div class="product-grid" id="product-grid">
+    
+    
+    
+    <article class="grid-item" data-cat="coins" data-title="40 pcoins" data-desc="a tiny spark to get you going. perfect for your very first purchase.">
+      <a href="/products/40" class="product-card-link" aria-label="View 40 PCoins">
+        <div class="product-card "
+          data-product-id="/products/40"
+          data-coins="40"
+          data-title="40 PCoins"
+          data-image="/assets/img/products/40.png"
+          data-stripe-id="price_PLACEHOLDER"
+          data-price-usd="0.7"
+          data-price-myr="2.89"
+          data-price-cny="4.99">
+          
+          <div class="product-img-wrap">
+            <img src="/assets/img/products/40.png" alt="" loading="lazy" data-fallback-src="/assets/img/products/placeholder.png" />
+          </div>
+          <div class="product-body">
+            <p class="product-coins">40 PCoins</p>
+            <h2 class="product-name">40 PCoins</h2>
+            <p class="product-desc">A tiny spark to get you going. Perfect for your very first purchase.</p>
+          </div>
+          <div class="product-footer">
+            <span class="product-price js-regional-price" data-price-usd="0.7" data-price-myr="2.89" data-price-cny="4.99">$0.7</span>
+          </div>
+        </div>
+      </a>
+      <button class="btn btn-green product-btn" type="button" data-add-product>Add to Cart</button>
+    </article>
+    
+    
+    
+    <article class="grid-item" data-cat="coins" data-title="100 pcoins" data-desc="a flicker of coins to grab your first cosmetic or rank.">
+      <a href="/products/100" class="product-card-link" aria-label="View 100 PCoins">
+        <div class="product-card "
+          data-product-id="/products/100"
+          data-coins="100"
+          data-title="100 PCoins"
+          data-image="/assets/img/products/100.png"
+          data-stripe-id="price_PLACEHOLDER"
+          data-price-usd="1.4"
+          data-price-myr="5.69"
+          data-price-cny="9.99">
+          
+          <div class="product-img-wrap">
+            <img src="/assets/img/products/100.png" alt="" loading="lazy" data-fallback-src="/assets/img/products/placeholder.png" />
+          </div>
+          <div class="product-body">
+            <p class="product-coins">100 PCoins</p>
+            <h2 class="product-name">100 PCoins</h2>
+            <p class="product-desc">A flicker of coins to grab your first cosmetic or rank.</p>
+          </div>
+          <div class="product-footer">
+            <span class="product-price js-regional-price" data-price-usd="1.4" data-price-myr="5.69" data-price-cny="9.99">$1.4</span>
+          </div>
+        </div>
+      </a>
+      <button class="btn btn-green product-btn" type="button" data-add-product>Add to Cart</button>
+    </article>
+    
+    
+    
+    <article class="grid-item" data-cat="coins" data-title="300 pcoins" data-desc="a solid bundle for players ready to make their mark on pwindows.">
+      <a href="/products/300" class="product-card-link" aria-label="View 300 PCoins">
+        <div class="product-card "
+          data-product-id="/products/300"
+          data-coins="300"
+          data-title="300 PCoins"
+          data-image="/assets/img/products/300.png"
+          data-stripe-id="price_PLACEHOLDER"
+          data-price-usd="3.92"
+          data-price-myr="16.19"
+          data-price-cny="27.99">
+          
+          <div class="product-img-wrap">
+            <img src="/assets/img/products/300.png" alt="" loading="lazy" data-fallback-src="/assets/img/products/placeholder.png" />
+          </div>
+          <div class="product-body">
+            <p class="product-coins">300 PCoins</p>
+            <h2 class="product-name">300 PCoins</h2>
+            <p class="product-desc">A solid bundle for players ready to make their mark on PWindows.</p>
+          </div>
+          <div class="product-footer">
+            <span class="product-price js-regional-price" data-price-usd="3.92" data-price-myr="16.19" data-price-cny="27.99">$3.92</span>
+          </div>
+        </div>
+      </a>
+      <button class="btn btn-green product-btn" type="button" data-add-product>Add to Cart</button>
+    </article>
+    
+    
+    
+    <article class="grid-item" data-cat="coins" data-title="600 pcoins" data-desc="enough coins to unlock ranks, cosmetics and get a head start.">
+      <a href="/products/600" class="product-card-link" aria-label="View 600 PCoins">
+        <div class="product-card "
+          data-product-id="/products/600"
+          data-coins="600"
+          data-title="600 PCoins"
+          data-image="/assets/img/products/600.png"
+          data-stripe-id="price_PLACEHOLDER"
+          data-price-usd="7.0"
+          data-price-myr="29.49"
+          data-price-cny="49.99">
+          
+          <div class="product-img-wrap">
+            <img src="/assets/img/products/600.png" alt="" loading="lazy" data-fallback-src="/assets/img/products/placeholder.png" />
+          </div>
+          <div class="product-body">
+            <p class="product-coins">600 PCoins</p>
+            <h2 class="product-name">600 PCoins</h2>
+            <p class="product-desc">Enough coins to unlock ranks, cosmetics and get a head start.</p>
+          </div>
+          <div class="product-footer">
+            <span class="product-price js-regional-price" data-price-usd="7.0" data-price-myr="29.49" data-price-cny="49.99">$7.0</span>
+          </div>
+        </div>
+      </a>
+      <button class="btn btn-green product-btn" type="button" data-add-product>Add to Cart</button>
+    </article>
+    
+    
+    
+    <article class="grid-item" data-cat="coins" data-title="1300 pcoins" data-desc="the most popular choice. great value for dedicated players.">
+      <a href="/products/1300" class="product-card-link" aria-label="View 1300 PCoins">
+        <div class="product-card product-card--featured"
+          data-product-id="/products/1300"
+          data-coins="1300"
+          data-title="1300 PCoins"
+          data-image="/assets/img/products/1300.png"
+          data-stripe-id="price_PLACEHOLDER"
+          data-price-usd="14.0"
+          data-price-myr="57.49"
+          data-price-cny="99.99">
+          <div class="product-badge">Most Popular</div>
+          <div class="product-img-wrap">
+            <img src="/assets/img/products/1300.png" alt="" loading="lazy" data-fallback-src="/assets/img/products/placeholder.png" />
+          </div>
+          <div class="product-body">
+            <p class="product-coins">1300 PCoins</p>
+            <h2 class="product-name">1300 PCoins</h2>
+            <p class="product-desc">The most popular choice. Great value for dedicated players.</p>
+          </div>
+          <div class="product-footer">
+            <span class="product-price js-regional-price" data-price-usd="14.0" data-price-myr="57.49" data-price-cny="99.99">$14.0</span>
+          </div>
+        </div>
+      </a>
+      <button class="btn btn-green product-btn" type="button" data-add-product>Add to Cart</button>
+    </article>
+    
+    
+    
+    <article class="grid-item" data-cat="coins" data-title="2800 pcoins" data-desc="a storm of coins for serious players who want it all.">
+      <a href="/products/2800" class="product-card-link" aria-label="View 2800 PCoins">
+        <div class="product-card "
+          data-product-id="/products/2800"
+          data-coins="2800"
+          data-title="2800 PCoins"
+          data-image="/assets/img/products/2800.png"
+          data-stripe-id="price_PLACEHOLDER"
+          data-price-usd="28.0"
+          data-price-myr="124.99"
+          data-price-cny="199.99">
+          
+          <div class="product-img-wrap">
+            <img src="/assets/img/products/2800.png" alt="" loading="lazy" data-fallback-src="/assets/img/products/placeholder.png" />
+          </div>
+          <div class="product-body">
+            <p class="product-coins">2800 PCoins</p>
+            <h2 class="product-name">2800 PCoins</h2>
+            <p class="product-desc">A storm of coins for serious players who want it all.</p>
+          </div>
+          <div class="product-footer">
+            <span class="product-price js-regional-price" data-price-usd="28.0" data-price-myr="124.99" data-price-cny="199.99">$28.0</span>
+          </div>
+        </div>
+      </a>
+      <button class="btn btn-green product-btn" type="button" data-add-product>Add to Cart</button>
+    </article>
+    
+    
+    
+    <article class="grid-item" data-cat="coins" data-title="4000 pcoins" data-desc="titan-level coins for players who dominate every server.">
+      <a href="/products/4000" class="product-card-link" aria-label="View 4000 PCoins">
+        <div class="product-card "
+          data-product-id="/products/4000"
+          data-coins="4000"
+          data-title="4000 PCoins"
+          data-image="/assets/img/products/4000.png"
+          data-stripe-id="price_PLACEHOLDER"
+          data-price-usd="36.4"
+          data-price-myr="149.49"
+          data-price-cny="259.99">
+          
+          <div class="product-img-wrap">
+            <img src="/assets/img/products/4000.png" alt="" loading="lazy" data-fallback-src="/assets/img/products/placeholder.png" />
+          </div>
+          <div class="product-body">
+            <p class="product-coins">4000 PCoins</p>
+            <h2 class="product-name">4000 PCoins</h2>
+            <p class="product-desc">Titan-level coins for players who dominate every server.</p>
+          </div>
+          <div class="product-footer">
+            <span class="product-price js-regional-price" data-price-usd="36.4" data-price-myr="149.49" data-price-cny="259.99">$36.4</span>
+          </div>
+        </div>
+      </a>
+      <button class="btn btn-green product-btn" type="button" data-add-product>Add to Cart</button>
+    </article>
+    
+    
+    
+    <article class="grid-item" data-cat="coins" data-title="7000 pcoins" data-desc="legendary amounts of pcoins. you&#39;ll never run out.">
+      <a href="/products/7000" class="product-card-link" aria-label="View 7000 PCoins">
+        <div class="product-card "
+          data-product-id="/products/7000"
+          data-coins="7000"
+          data-title="7000 PCoins"
+          data-image="/assets/img/products/7000.png"
+          data-stripe-id="price_PLACEHOLDER"
+          data-price-usd="56.0"
+          data-price-myr="199.99"
+          data-price-cny="399.99">
+          
+          <div class="product-img-wrap">
+            <img src="/assets/img/products/7000.png" alt="" loading="lazy" data-fallback-src="/assets/img/products/placeholder.png" />
+          </div>
+          <div class="product-body">
+            <p class="product-coins">7000 PCoins</p>
+            <h2 class="product-name">7000 PCoins</h2>
+            <p class="product-desc">Legendary amounts of PCoins. You'll never run out.</p>
+          </div>
+          <div class="product-footer">
+            <span class="product-price js-regional-price" data-price-usd="56.0" data-price-myr="199.99" data-price-cny="399.99">$56.0</span>
+          </div>
+        </div>
+      </a>
+      <button class="btn btn-green product-btn" type="button" data-add-product>Add to Cart</button>
+    </article>
+    
+    
+    
+    <article class="grid-item" data-cat="coins" data-title="10000 pcoins" data-desc="the ultimate bundle. the highest tier for the most dedicated pwindows player. you should have enough pcoins to buy everything you want after this.">
+      <a href="/products/10000" class="product-card-link" aria-label="View 10000 PCoins">
+        <div class="product-card "
+          data-product-id="/products/10000"
+          data-coins="10000"
+          data-title="10000 PCoins"
+          data-image="/assets/img/products/10000.png"
+          data-stripe-id="price_PLACEHOLDER"
+          data-price-usd="70.0"
+          data-price-myr="249.99"
+          data-price-cny="499.99">
+          
+          <div class="product-img-wrap">
+            <img src="/assets/img/products/10000.png" alt="" loading="lazy" data-fallback-src="/assets/img/products/placeholder.png" />
+          </div>
+          <div class="product-body">
+            <p class="product-coins">10000 PCoins</p>
+            <h2 class="product-name">10000 PCoins</h2>
+            <p class="product-desc">The ultimate bundle. The highest tier for the most dedicated PWindows player. You should have enough PCoins to buy everything you want after this.</p>
+          </div>
+          <div class="product-footer">
+            <span class="product-price js-regional-price" data-price-usd="70.0" data-price-myr="249.99" data-price-cny="499.99">$70.0</span>
+          </div>
+        </div>
+      </a>
+      <button class="btn btn-green product-btn" type="button" data-add-product>Add to Cart</button>
+    </article>
+    
+    
+    
+    
+
+    <article class="grid-item donate-wrap" data-cat="donate" data-title="donate support" data-desc="donate any amount support pwindows">
+      <div class="product-card donate-card" data-product-id="donate" data-coins="0" data-title="Support PWindows" data-image="/assets/PWindows.png" data-stripe-id="donate" data-price-usd="1" data-price-myr="5" data-price-cny="10">
+        <div class="product-img-wrap donate-heart" aria-hidden="true">♥</div>
+        <div class="product-body">
+          <p class="product-coins">Any amount</p>
+          <h2 class="product-name">Support PWindows</h2>
+          <p class="product-desc">Love what we’re building? Help keep the servers alive.</p>
+        </div>
+        <div class="product-footer donate-footer">
+          <label class="sr-only" for="donate-amount">Donation amount</label>
+          <div class="donate-input-wrap"><span id="donate-currency">$</span><input type="number" id="donate-amount" min="1" step="1" placeholder="10" /></div>
+        </div>
+      </div>
+      <button class="btn btn-gold product-btn" id="donate-add-btn" type="button">Add Support to Cart</button>
+    </article>
+  </div>
+  <p class="empty-state" id="no-results" hidden>No products found.</p>
+</section>
+</main>
+    <footer class="footer">
+  <nav class="footer-container" aria-labelledby="footer-navigation-heading">
+    <h2 class="sr-only" id="footer-navigation-heading">Footer navigation</h2>
+
+    <div class="footer-column footer-column-left">
+      <a href="https://www.pwindows.qzz.io" class="footer-logo" aria-label="PWindows main website">
+        <img src="/assets/PWindows.png" alt="PWindows" />
+      </a>
+      <p class="footer-copy">&copy; 2026 PWindows. All rights reserved.</p>
+      <p class="footer-disclaimer">Not affiliated with Mojang Studios, Microsoft, or Minecraft.</p>
+      <p class="footer-rules"><a href="https://www.pwindows.qzz.io/about">About us</a></p>
+      <p class="footer-rules"><a href="https://www.pwindows.qzz.io/rules">Rules</a></p>
+    </div>
+
+    <div class="footer-column">
+      <h3 class="footer-heading"><a href="https://www.pwindows.qzz.io/games">Games</a></h3>
+      <ul class="footer-links">
+        
+        <li><a href="https://www.pwindows.qzz.io/games/sacred-cubes">Sacred Cubes</a></li>
+        
+        <li><a href="https://www.pwindows.qzz.io/games/obby-of-dominance">Obby of Dominance</a></li>
+        
+      </ul>
+    </div>
+
+    <div class="footer-column">
+      <h3 class="footer-heading"><a href="https://www.pwindows.qzz.io/departments/">Departments</a></h3>
+      <ul class="footer-links">
+        
+        <li><a href="https://www.pwindows.qzz.io/departments/minecraft">Minecraft</a></li>
+        
+        <li><a href="https://www.pwindows.qzz.io/departments/roblox">Roblox</a></li>
+        
+        <li><a href="https://www.pwindows.qzz.io/departments/unity">Unity</a></li>
+        
+      </ul>
+    </div>
+
+    <div class="footer-column footer-column-right">
+      <h3 class="footer-heading"><a href="/products">Shop</a></h3>
+      <h3 class="footer-heading"><a href="https://support.pwindows.qzz.io">Support</a></h3>
+      <ul class="footer-links">
+        
+        <li><a href="https://www.pwindows.qzz.io/feedback">Feedback</a></li>
+        
+        <li><a href="https://www.pwindows.qzz.io/sitemap">Site map</a></li>
+        
+        <li><a href="https://www.pwindows.qzz.io/contact">Contact us</a></li>
+        
+        <li><a href="https://www.pwindows.qzz.io/staff">Staff</a></li>
+        
+      </ul>
+    </div>
+  </nav>
+</footer>
+
+    <script src="/assets/js/main.js?v=1784741309"></script>
+  </body>
+</html>

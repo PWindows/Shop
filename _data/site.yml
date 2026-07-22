@@ -1,0 +1,47 @@
+main_url: https://www.pwindows.qzz.io
+
+navigation:
+  - label: About
+    path: /about
+    icon: /assets/mojang/svg/icons/book.png
+  - label: Newest News
+    path: /articles
+    icon: /assets/mojang/Invicon_Map.png
+  - label: Staff
+    path: /staff
+    icon: /assets/mojang/svg/icons/color-two-players.svg
+  - label: Departments
+    path: /departments/
+    icon: /assets/mojang/svg/icons/color-chest.svg
+  - label: Games
+    path: /games
+    icon: /assets/icons/controller.png
+
+footer:
+  games:
+    - label: Sacred Cubes
+      path: /games/sacred-cubes
+    - label: Obby of Dominance
+      path: /games/obby-of-dominance
+  departments:
+    - label: Minecraft
+      path: /departments/minecraft
+    - label: Roblox
+      path: /departments/roblox
+    - label: Unity
+      path: /departments/unity
+  support:
+    - label: Feedback
+      path: /feedback
+    - label: Site map
+      path: /sitemap
+    - label: Contact us
+      path: /contact
+    - label: Staff
+      path: /staff
+
+links:
+  support: https://support.pwindows.qzz.io
+  discord: https://discord.pwindows.qzz.io/
+  youtube: https://www.youtube.com/@PWindows
+  twitter: https://x.com/pwindowsz

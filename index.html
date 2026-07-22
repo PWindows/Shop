@@ -1,125 +1,41 @@
 ---
 layout: default
 title: Home
+description: Sign in with your Minecraft username to browse PCoins and support PWindows.
+permalink: /
 ---
 
-<div class="gate-wrap">
+<section class="gate-wrap" aria-labelledby="gate-title">
   <div class="gate-card" id="gate-main">
-    <div class="gate-logo">
-      <img src="/assets/img/logo.png" alt="PWindows" onerror="this.style.display='none'" />
-    </div>
-    <h1 class="gate-title">Welcome to the<br><span class="gate-yellow">PWindows Shop</span></h1>
-    <p class="gate-sub">Enter your Minecraft username to buy PCoins</p>
+    <img class="gate-logo" src="{{ '/assets/PWindows.png' | relative_url }}" alt="PWindows" />
+    <h1 class="gate-title" id="gate-title">Welcome to the <span>PWindows Shop</span></h1>
+    <p class="gate-sub">Enter your Minecraft username to browse PCoins.</p>
 
-    <div class="gate-input-row">
-      <input type="text" id="gate-username" class="gate-input" placeholder="Your username..." autocomplete="off" maxlength="16" />
-      <button class="gate-btn" id="gate-enter-btn" onclick="handleEnter()">Enter Shop</button>
-    </div>
-    <p class="gate-error" id="gate-error"></p>
+    <form class="gate-form" id="gate-form" novalidate>
+      <label for="gate-username">Minecraft username</label>
+      <div class="gate-input-row">
+        <input type="text" id="gate-username" class="gate-input" placeholder="Your username..." autocomplete="username" minlength="3" maxlength="16" required />
+        <button class="btn btn-green gate-btn" id="gate-enter-btn" type="submit">Enter Shop</button>
+      </div>
+    </form>
+    <p class="gate-error" id="gate-error" role="alert"></p>
     <p class="gate-hint" id="gate-hint"></p>
 
-    <div class="gate-divider"><span>or</span></div>
-
-    <div class="gate-alt-row">
-      <a href="/merch" class="gate-alt-btn">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="6" width="16" height="11" rx="2" stroke="#333" stroke-width="1.5"/><path d="M7 6V5a3 3 0 016 0v1" stroke="#333" stroke-width="1.5"/></svg>
-        Browse Merch
-      </a>
-      <a href="/donate" class="gate-alt-btn gate-alt-btn--yellow">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 17C10 17 3 12.5 3 7.5A4 4 0 0110 5a4 4 0 017 2.5C17 12.5 10 17 10 17z" fill="#ffce02" stroke="#c9a200" stroke-width="1"/></svg>
-        Donate
-      </a>
+    <div class="gate-divider"><span>Coming soon</span></div>
+    <div class="gate-alt-row" aria-label="Future shop sections">
+      <button class="btn gate-alt-btn" type="button" disabled>Merch — Coming Soon</button>
+      <button class="btn btn-gold gate-alt-btn" type="button" disabled>Donate — Coming Soon</button>
     </div>
   </div>
 
-  <div class="gate-card gate-success" id="gate-success" style="display:none;">
-    <div class="gate-avatar" id="gate-avatar"></div>
-    <h2 class="gate-welcome" id="gate-welcome"></h2>
-    <p class="gate-sub">You're verified! What would you like to do?</p>
+  <div class="gate-card gate-success" id="gate-success" hidden>
+    <div class="gate-avatar" id="gate-avatar" aria-hidden="true"></div>
+    <h2 class="gate-welcome" id="gate-welcome">Welcome!</h2>
+    <p class="gate-sub">You’re ready to browse the PCoins shop.</p>
     <div class="gate-success-btns">
-      <a href="/products" class="gate-btn gate-btn--full" id="gate-shop-link">Browse Coin Bundles</a>
-      <a href="/merch" class="gate-alt-btn">Merch</a>
-      <a href="/donate" class="gate-alt-btn gate-alt-btn--yellow">Donate</a>
+      <a href="{{ '/products' | relative_url }}" class="btn btn-green gate-btn gate-btn--full" id="gate-shop-link">Browse Coin Bundles</a>
+      <button class="btn gate-alt-btn" type="button" disabled>Merch — Coming Soon</button>
+      <button class="btn btn-gold gate-alt-btn" type="button" disabled>Donate — Coming Soon</button>
     </div>
   </div>
-</div>
-
-<script>
-async function handleEnter() {
-  const input = document.getElementById('gate-username');
-  const btn = document.getElementById('gate-enter-btn');
-  const error = document.getElementById('gate-error');
-  const hint = document.getElementById('gate-hint');
-  const username = input.value.trim();
-
-  error.textContent = '';
-  hint.textContent = '';
-
-  if (!username) {
-    error.textContent = 'Please enter your username.';
-    return;
-  }
-
-  if (!/^[a-zA-Z0-9_]{3,16}$/.test(username)) {
-    error.textContent = 'That doesn\'t look like a valid Minecraft username.';
-    return;
-  }
-
-  btn.textContent = 'Checking...';
-  btn.disabled = true;
-  input.disabled = true;
-
-  try {
-    // Step 1: get UUID from Mojang
-    const res = await fetch(`https://api.pwindows.qzz.io/shop/login?username=${username}`);
-    const data = await res.json();
-    
-    if (!data.exists) {
-      error.textContent = 'You haven\'t joined PWindows yet!';
-      hint.textContent = 'Join at play.pwindows.qzz.io first, then come back.';
-      reset(btn, input);
-      return;
-    }
-    
-    const formattedUUID = data.uuid;
-    sessionStorage.setItem('pw_username', data.username);
-    sessionStorage.setItem('pw_uuid', formattedUUID);
-
-    document.getElementById('gate-main').style.display = 'none';
-    const success = document.getElementById('gate-success');
-    success.style.display = 'flex';
-    document.getElementById('gate-welcome').textContent = `Hey, ${data.username}!`;
-    document.getElementById('gate-avatar').style.backgroundImage =
-      `url('https://crafatar.com/avatars/${formattedUUID}?size=80&overlay')`;
-
-  } catch (e) {
-    error.textContent = 'Something went wrong. Please try again.';
-    reset(btn, input);
-  }
-}
-
-function reset(btn, input) {
-  btn.textContent = 'Enter Shop';
-  btn.disabled = false;
-  input.disabled = false;
-}
-
-// Allow Enter key
-document.getElementById('gate-username').addEventListener('keydown', e => {
-  if (e.key === 'Enter') handleEnter();
-});
-
-// If already verified this session, skip gate
-window.addEventListener('DOMContentLoaded', () => {
-  const username = sessionStorage.getItem('pw_username');
-  const uuid = sessionStorage.getItem('pw_uuid');
-  if (username && uuid) {
-    document.getElementById('gate-main').style.display = 'none';
-    const success = document.getElementById('gate-success');
-    success.style.display = 'flex';
-    document.getElementById('gate-welcome').textContent = `Hey, ${username}!`;
-    document.getElementById('gate-avatar').style.backgroundImage =
-      `url('https://crafatar.com/avatars/${uuid}?size=80&overlay')`;
-  }
-});
-</script>
+</section>

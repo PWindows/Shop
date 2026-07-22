@@ -1,6 +1,20 @@
 title: PWindows Shop
-description: Official Store of PWindows
+description: Buy PCoins and support the PWindows community.
 url: "https://shop.pwindows.qzz.io"
+markdown: kramdown
+kramdown:
+  input: GFM
+exclude:
+  - README.md
+  - vendor/
+  - assets/mojang/fonts/MinecraftFive-Bold.html
+  - assets/mojang/fonts/MinecraftFive-Regular.html
+  - assets/mojang/fonts/MinecraftSeven.html
+  - assets/mojang/fonts/MinecraftTen.html
+  - assets/mojang/fonts/NotoSans-Bold.html
+  - assets/mojang/fonts/NotoSans-BoldItalic.html
+  - assets/mojang/fonts/NotoSans-Italic.html
+  - assets/mojang/fonts/NotoSans-Regular.html
 collections:
   products:
     output: true

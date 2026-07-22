@@ -2,164 +2,48 @@
 layout: default
 ---
 
-<div class="product-page-wrap">
-  <a href="/products" class="back-link">← Back to Shop</a>
+<section class="product-page-wrap" aria-labelledby="product-title">
+  <a href="{{ '/products' | relative_url }}" class="back-link">Back to Shop</a>
 
-  <div class="product-page">
+  <div class="product-page"
+    id="product-page-data"
+    data-product-id="{{ page.url }}"
+    data-coins="{{ page.coins }}"
+    data-title="{{ page.title | escape }}"
+    data-image="{{ page.image }}"
+    data-stripe-id="{{ page.stripe_price_id }}"
+    data-price-usd="{{ page.price_usd }}"
+    data-price-myr="{{ page.price_myr }}"
+    data-price-cny="{{ page.price_cny }}">
     <div class="product-page-left">
       <div class="product-page-img-wrap">
-        <img src="{{ page.image }}" alt="{{ page.title }}" onerror="this.src='/assets/img/products/placeholder.png'" />
+        <img src="{{ page.image | relative_url }}" alt="{{ page.title | escape }}" data-fallback-src="{{ '/assets/img/products/placeholder.png' | relative_url }}" />
       </div>
     </div>
 
     <div class="product-page-right">
-      <p class="product-page-cat">{{ page.category | upcase }}</p>
-      <h1 class="product-page-title">{{ page.title }}</h1>
-      <p class="product-page-coins">{{ page.coins | number_with_delimiter }} PCoins</p>
+      <h1 class="product-page-title" id="product-title">{{ page.title }}</h1>
+      {% if page.coins %}<p class="product-page-coins">{{ page.coins | number_with_delimiter }} PCoins</p>{% endif %}
       <p class="product-page-desc">{{ page.description }}</p>
-
-      {% if page.content != "" %}
-      <div class="product-page-content">{{ page.content }}</div>
-      {% endif %}
+      {% assign product_content = content | strip %}
+      {% if product_content != '' %}<div class="product-page-content">{{ content }}</div>{% endif %}
 
       <div class="product-page-prices">
-        <div class="price-option price-option--primary">
+        <div class="price-option">
           <span class="price-label" id="price-label">USD</span>
           <span class="price-value js-regional-price" id="product-page-price" data-price-usd="{{ page.price_usd }}" data-price-myr="{{ page.price_myr }}" data-price-cny="{{ page.price_cny }}">${{ page.price_usd }}</span>
         </div>
       </div>
 
       <div class="promo-row">
+        <label class="sr-only" for="promo-input">Promo code</label>
         <input type="text" id="promo-input" class="promo-input" placeholder="Promo code (optional)" />
-        <button class="promo-btn" onclick="applyPromo()">Apply</button>
+        <button class="btn promo-btn" id="promo-btn" type="button">Apply</button>
       </div>
-      <p class="promo-msg" id="promo-msg"></p>
+      <p class="promo-msg" id="promo-msg" aria-live="polite"></p>
 
-      <button class="buy-btn" id="buy-btn" onclick="addProductToCart()">
-        Add to Cart — <span id="buy-price">RM{{ page.price_myr }}</span>
-      </button>
+      <button class="btn btn-green buy-btn" id="buy-btn" type="button">Add to Cart — <span id="buy-price">${{ page.price_usd }}</span></button>
       <p class="buy-note">Added items will appear in your shopping cart.</p>
     </div>
   </div>
-</div>
-
-<script>
-const STRIPE_PRICE_ID = "{{ page.stripe_price_id }}";
-const PRODUCT_TITLE = "{{ page.title }}";
-let promoCode = null;
-
-window.addEventListener('DOMContentLoaded', () => {
-  const username = sessionStorage.getItem('pw_username');
-  const uuid = sessionStorage.getItem('pw_uuid');
-  if (!username || !uuid) {
-    window.location.href = '/?redirect={{ page.url }}';
-  }
-
-  // Initialize regional pricing for product page
-  initRegionalPrices();
-  updateProductPagePrice();
-});
-
-function updateProductPagePrice() {
-  const region = window.userRegion || 'US';
-  const priceNode = document.getElementById('product-page-price');
-  const labelNode = document.getElementById('price-label');
-  const buyPriceNode = document.getElementById('buy-price');
-
-  if (!priceNode) return;
-
-  const usd = parseFloat(priceNode.dataset.priceUsd);
-  const myr = parseFloat(priceNode.dataset.priceMyr);
-  const cny = parseFloat(priceNode.dataset.priceCny);
-
-  let amount = usd;
-  let currency = 'USD';
-  let label = 'USD';
-
-  if (region === 'MY') {
-    amount = myr;
-    currency = 'MYR';
-    label = 'Malaysia';
-  } else if (region === 'CN') {
-    amount = cny;
-    currency = 'CNY';
-    label = 'China';
-  }
-
-  if (Number.isFinite(amount)) {
-    const formatted = formatCurrency(amount, currency);
-    priceNode.textContent = formatted;
-    if (labelNode) labelNode.textContent = label;
-    if (buyPriceNode) buyPriceNode.textContent = formatted;
-  }
-}
-
-function applyPromo() {
-  const code = document.getElementById('promo-input').value.trim().toUpperCase();
-  const msg = document.getElementById('promo-msg');
-  if (!code) return;
-
-  msg.style.color = '#888';
-  msg.textContent = 'Checking code...';
-
-  // TODO: validate against Cloudflare Worker
-  // For now just a placeholder
-  setTimeout(() => {
-    msg.style.color = '#e74c3c';
-    msg.textContent = 'Promo codes coming soon!';
-  }, 600);
-}
-
-async function handleBuy() {
-  const btn = document.getElementById('buy-btn');
-  const uuid = sessionStorage.getItem('pw_uuid');
-  const username = sessionStorage.getItem('pw_username');
-
-  if (!uuid) {
-    window.location.href = '/';
-    return;
-  }
-
-  btn.textContent = 'Adding...';
-  btn.disabled = true;
-
-  // Add to cart
-  await addProductToCart();
-
-  btn.disabled = false;
-  btn.textContent = 'Add to Cart — ' + document.getElementById('buy-price').textContent;
-}
-
-function addProductToCart() {
-  const priceNode = document.getElementById('product-page-price');
-  const usd = parseFloat(priceNode.dataset.priceUsd);
-  const myr = parseFloat(priceNode.dataset.priceMyr);
-  const cny = parseFloat(priceNode.dataset.priceCny);
-
-  const productItem = {
-    productId: '{{ page.url }}',
-    coins: parseInt('{{ page.coins }}'),
-    title: '{{ page.title }}',
-    image: '{{ page.image }}',
-    stripeId: '{{ page.stripe_price_id }}',
-    priceUsd: usd,
-    priceMyr: myr,
-    priceCny: cny,
-    quantity: 1
-  };
-
-  let cart = getCart();
-  const existing = cart.find(item => item.productId === productItem.productId);
-  if (existing) {
-    existing.quantity += 1;
-  } else {
-    cart.push(productItem);
-  }
-
-  saveCart(cart);
-
-  // Show feedback and redirect
-  alert('Added to cart!');
-  window.location.href = '/products';
-}
-</script>
+</section>

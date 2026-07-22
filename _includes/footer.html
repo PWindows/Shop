@@ -1,0 +1,43 @@
+<footer class="footer">
+  <nav class="footer-container" aria-labelledby="footer-navigation-heading">
+    <h2 class="sr-only" id="footer-navigation-heading">Footer navigation</h2>
+
+    <div class="footer-column footer-column-left">
+      <a href="{{ site.data.site.main_url }}" class="footer-logo" aria-label="PWindows main website">
+        <img src="{{ '/assets/PWindows.png' | relative_url }}" alt="PWindows" />
+      </a>
+      <p class="footer-copy">&copy; {{ site.time | date: '%Y' }} PWindows. All rights reserved.</p>
+      <p class="footer-disclaimer">Not affiliated with Mojang Studios, Microsoft, or Minecraft.</p>
+      <p class="footer-rules"><a href="{{ site.data.site.main_url }}/about">About us</a></p>
+      <p class="footer-rules"><a href="{{ site.data.site.main_url }}/rules">Rules</a></p>
+    </div>
+
+    <div class="footer-column">
+      <h3 class="footer-heading"><a href="{{ site.data.site.main_url }}/games">Games</a></h3>
+      <ul class="footer-links">
+        {% for item in site.data.site.footer.games %}
+        <li><a href="{{ site.data.site.main_url }}{{ item.path }}">{{ item.label }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="footer-column">
+      <h3 class="footer-heading"><a href="{{ site.data.site.main_url }}/departments/">Departments</a></h3>
+      <ul class="footer-links">
+        {% for item in site.data.site.footer.departments %}
+        <li><a href="{{ site.data.site.main_url }}{{ item.path }}">{{ item.label }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="footer-column footer-column-right">
+      <h3 class="footer-heading"><a href="{{ '/products' | relative_url }}">Shop</a></h3>
+      <h3 class="footer-heading"><a href="{{ site.data.site.links.support }}">Support</a></h3>
+      <ul class="footer-links">
+        {% for item in site.data.site.footer.support %}
+        <li><a href="{{ site.data.site.main_url }}{{ item.path }}">{{ item.label }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </nav>
+</footer>

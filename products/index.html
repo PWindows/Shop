@@ -1,205 +1,84 @@
 ---
 layout: default
-title: Shop
+title: PCoins Shop
+description: Browse PCoins bundles and support PWindows.
+permalink: /products/
 ---
 
-<div class="shop-hero">
+<section class="shop-hero" aria-labelledby="shop-title">
   <div class="shop-hero-inner">
-    <div class="shop-user-pill" id="shop-user-pill" style="display:none;">
-      <div class="shop-user-avatar" id="shop-user-avatar"></div>
+    <div class="shop-user-pill" id="shop-user-pill" hidden>
+      <div class="shop-user-avatar" id="shop-user-avatar" aria-hidden="true"></div>
       <span id="shop-user-name"></span>
-      <button class="shop-user-switch" onclick="switchUser()">Switch</button>
+      <button class="shop-user-switch" id="shop-user-switch" type="button">Switch player</button>
     </div>
-    <h1 class="shop-title">PCoins Shop</h1>
-    <p class="shop-sub">Buy PCoins and spend them in-game</p>
+    <h1 class="shop-title" id="shop-title">PCoins Shop</h1>
+    <p class="shop-sub">Buy PCoins and spend them in-game.</p>
 
     <div class="shop-controls">
-      <input type="text" id="shop-search" class="shop-search" placeholder="Search bundles..." />
-      <div class="shop-cats">
-        <button class="cat-btn active" data-cat="all">All</button>
-        <button class="cat-btn" data-cat="coins">Coins</button>
-        <button class="cat-btn" data-cat="merch">Merch</button>
+      <label class="sr-only" for="shop-search">Search bundles</label>
+      <input type="search" id="shop-search" class="shop-search" placeholder="Search bundles..." />
+      <div class="shop-cats" aria-label="Product categories">
+        <button class="cat-btn btn active" type="button" data-cat="all" aria-pressed="true">All</button>
+        <button class="cat-btn btn" type="button" data-cat="coins" aria-pressed="false">Coins</button>
+        <button class="cat-btn btn" type="button" data-cat="donate" aria-pressed="false">Support</button>
       </div>
     </div>
   </div>
-</div>
+</section>
 
-<div class="shop-wrap">
+<div class="transition-section" aria-hidden="true"></div>
+
+<section class="shop-wrap" aria-label="Products">
   <div class="product-grid" id="product-grid">
-
     {% assign products = site.products | sort: 'price_usd' %}
     {% for product in products %}
-    <div class="grid-item" data-cat="{{ product.category }}" data-title="{{ product.title | downcase }}" data-desc="{{ product.description | downcase }}">
-      <a href="{{ product.url | relative_url }}" class="product-card-link">
-        <div class="product-card {% if product.featured %}product-card--featured{% endif %}" data-product-id="{{ product.url }}" data-coins="{{ product.coins }}" data-title="{{ product.title }}" data-image="{{ product.image }}" data-stripe-id="{{ product.stripe_price_id }}" data-price-usd="{{ product.price_usd }}" data-price-myr="{{ product.price_myr }}" data-price-cny="{{ product.price_cny }}">
+    {% if product.coins and product.category %}
+    <article class="grid-item" data-cat="{{ product.category }}" data-title="{{ product.title | downcase | escape }}" data-desc="{{ product.description | downcase | escape }}">
+      <a href="{{ product.url | relative_url }}" class="product-card-link" aria-label="View {{ product.title | escape }}">
+        <div class="product-card {% if product.featured %}product-card--featured{% endif %}"
+          data-product-id="{{ product.url }}"
+          data-coins="{{ product.coins }}"
+          data-title="{{ product.title | escape }}"
+          data-image="{{ product.image }}"
+          data-stripe-id="{{ product.stripe_price_id }}"
+          data-price-usd="{{ product.price_usd }}"
+          data-price-myr="{{ product.price_myr }}"
+          data-price-cny="{{ product.price_cny }}">
           {% if product.featured %}<div class="product-badge">Most Popular</div>{% endif %}
           <div class="product-img-wrap">
-            <img src="{{ product.image }}" alt="{{ product.title }}" onerror="this.src='/assets/img/products/placeholder.png'" />
+            <img src="{{ product.image | relative_url }}" alt="" loading="lazy" data-fallback-src="{{ '/assets/img/products/placeholder.png' | relative_url }}" />
           </div>
           <div class="product-body">
             <p class="product-coins">{{ product.coins | number_with_delimiter }} PCoins</p>
-            <h3 class="product-name">{{ product.title }}</h3>
+            <h2 class="product-name">{{ product.title }}</h2>
             <p class="product-desc">{{ product.description }}</p>
           </div>
           <div class="product-footer">
-            <span class="product-price js-regional-price" data-price-usd="{{ product.price_usd }}" data-price-myr="{{ product.price_myr }}" data-price-cny="{{ product.price_cny }}"></span>
+            <span class="product-price js-regional-price" data-price-usd="{{ product.price_usd }}" data-price-myr="{{ product.price_myr }}" data-price-cny="{{ product.price_cny }}">${{ product.price_usd }}</span>
           </div>
         </div>
       </a>
-      <button class="product-btn" onclick="addToCart(this); event.stopPropagation();">Add to Cart</button>
-    </div>
+      <button class="btn btn-green product-btn" type="button" data-add-product>Add to Cart</button>
+    </article>
+    {% endif %}
     {% endfor %}
 
-    <div class="grid-item donate-wrap" data-cat="donate" data-title="donate support" data-desc="donate any amount support pwindows">
-      <div class="product-card donate-card" data-product-id="donate" data-coins="0" data-title="Support PWindows" data-image="/assets/img/logo.png" data-stripe-id="donate" data-price-usd="1" data-price-myr="5" data-price-cny="10">
-        <div class="product-img-wrap donate-heart">
-          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-            <path d="M28 48C28 48 6 34 6 20A11 11 0 0128 14a11 11 0 0122 6C50 34 28 48 28 48z" fill="#ffce02"/>
-          </svg>
-        </div>
+    <article class="grid-item donate-wrap" data-cat="donate" data-title="donate support" data-desc="donate any amount support pwindows">
+      <div class="product-card donate-card" data-product-id="donate" data-coins="0" data-title="Support PWindows" data-image="{{ '/assets/PWindows.png' | relative_url }}" data-stripe-id="donate" data-price-usd="1" data-price-myr="5" data-price-cny="10">
+        <div class="product-img-wrap donate-heart" aria-hidden="true">♥</div>
         <div class="product-body">
           <p class="product-coins">Any amount</p>
-          <h3 class="product-name">Support PWindows</h3>
-          <p class="product-desc">Love what we're building? Help keep the servers alive.</p>
+          <h2 class="product-name">Support PWindows</h2>
+          <p class="product-desc">Love what we’re building? Help keep the servers alive.</p>
         </div>
         <div class="product-footer donate-footer">
-          <div class="donate-input-wrap">
-            <span id="donate-currency">RM</span>
-            <input type="number" id="donate-amount" min="1" step="1" placeholder="10" />
-          </div>
+          <label class="sr-only" for="donate-amount">Donation amount</label>
+          <div class="donate-input-wrap"><span id="donate-currency">$</span><input type="number" id="donate-amount" min="1" step="1" placeholder="10" /></div>
         </div>
       </div>
-      <button class="product-btn" onclick="addDonationToCart(); event.stopPropagation();">Add to Cart</button>
-    </div>
-
+      <button class="btn btn-gold product-btn" id="donate-add-btn" type="button">Add Support to Cart</button>
+    </article>
   </div>
-  <p id="no-results" style="display:none; text-align:center; padding:3rem; color:#888; font-family:'Minecraft Seven v2',monospace;">No products found.</p>
-</div>
-
-<script>
-window.addEventListener('DOMContentLoaded', async () => {
-  const username = sessionStorage.getItem('pw_username');
-  const uuid = sessionStorage.getItem('pw_uuid');
-
-  if (username && uuid) {
-    const pill = document.getElementById('shop-user-pill');
-    pill.style.display = 'flex';
-    document.getElementById('shop-user-name').textContent = username;
-    document.getElementById('shop-user-avatar').style.backgroundImage =
-      `url('https://crafatar.com/avatars/${uuid}?size=32&overlay')`;
-  } else {
-    window.location.href = '/?redirect=products';
-  }
-
-  // Initialize regional pricing FIRST (before filters)
-  await initRegionalPrices();
-
-  // Update donate currency label
-  updateDonateCurrency();
-
-  initFilters();
-});
-
-function switchUser() {
-  sessionStorage.removeItem('pw_username');
-  sessionStorage.removeItem('pw_uuid');
-  window.location.href = '/';
-}
-
-function initFilters() {
-  const search = document.getElementById('shop-search');
-  const catBtns = document.querySelectorAll('.cat-btn');
-  let activeCat = 'all';
-
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('category')) {
-    activeCat = params.get('category');
-    catBtns.forEach(b => b.classList.toggle('active', b.dataset.cat === activeCat));
-  }
-  if (params.get('s')) search.value = params.get('s');
-  filter();
-
-  search.addEventListener('input', () => {
-    const p = new URLSearchParams(window.location.search);
-    search.value ? p.set('s', search.value) : p.delete('s');
-    history.replaceState(null, '', '?' + p.toString());
-    filter();
-  });
-
-  catBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      catBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeCat = btn.dataset.cat;
-      const p = new URLSearchParams(window.location.search);
-      activeCat === 'all' ? p.delete('category') : p.set('category', activeCat);
-      history.replaceState(null, '', '?' + p.toString());
-      filter();
-    });
-  });
-
-  function filter() {
-    const q = search.value.toLowerCase();
-    const items = document.querySelectorAll('.grid-item');
-    let visible = 0;
-    items.forEach(item => {
-      const matchCat = activeCat === 'all' || item.dataset.cat === activeCat;
-      const matchQ = item.dataset.title.includes(q) || item.dataset.desc.includes(q);
-      const show = matchCat && matchQ;
-      item.style.display = show ? '' : 'none';
-      if (show) visible++;
-    });
-    document.getElementById('no-results').style.display = visible === 0 ? 'block' : 'none';
-  }
-}
-
-function handleDonate(e) {
-  e.preventDefault();
-  const amt = document.getElementById('donate-amount').value;
-  if (!amt || amt < 1) { alert('Please enter a valid amount.'); return; }
-  alert('Donation coming soon! RM' + parseFloat(amt).toFixed(2));
-}
-
-function updateDonateCurrency() {
-  const currency = window.userCurrency || 'USD';
-  const currencySymbol = currency === 'MYR' ? 'RM' : currency === 'CNY' ? '¥' : '$';
-  document.getElementById('donate-currency').textContent = currencySymbol;
-}
-
-function addDonationToCart() {
-  const amt = document.getElementById('donate-amount').value;
-  if (!amt || amt < 1) { 
-    alert('Please enter a valid amount.'); 
-    return; 
-  }
-
-  const currency = window.userCurrency || 'USD';
-  const currencySymbol = currency === 'MYR' ? 'RM' : currency === 'CNY' ? '¥' : '$';
-  let priceInCurrency = parseFloat(amt);
-
-  // If they entered RM but we need to store the equivalent, use the input as-is
-  // The cart will display it correctly based on their currency
-
-  const donationItem = {
-    productId: 'donate_' + Date.now(),
-    coins: 0,
-    title: `Support PWindows - ${currencySymbol}${amt}`,
-    image: '/assets/img/logo.png',
-    stripeId: 'donate',
-    priceUsd: currency === 'USD' ? priceInCurrency : priceInCurrency / 4.3, // rough conversion
-    priceMyr: currency === 'MYR' ? priceInCurrency : priceInCurrency * 4.3,
-    priceCny: currency === 'CNY' ? priceInCurrency : priceInCurrency * 6,
-    quantity: 1,
-    isDonation: true,
-    donationAmount: parseFloat(amt)
-  };
-
-  let cart = getCart();
-  cart.push(donationItem);
-  saveCart(cart);
-
-  // Show feedback
-  document.getElementById('donate-amount').value = '';
-  alert('Donation added to cart!');
-}
-</script>
+  <p class="empty-state" id="no-results" hidden>No products found.</p>
+</section>

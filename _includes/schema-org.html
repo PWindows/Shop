@@ -1,9 +1,15 @@
 <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
+  {
+    "@context": "https://schema.org",
+    "@type": "OnlineStore",
+    "name": {{ site.title | jsonify }},
+    "description": {{ site.description | jsonify }},
+    "url": {{ site.url | jsonify }},
+    "logo": {{ '/assets/PWindows.png' | absolute_url | jsonify }},
+    "parentOrganization": {
       "@type": "Organization",
-      "name": "PWindows Store",
-      "url": "https://store.pwindows.qzz.io",
-      "logo": "https://store.pwindows.qzz.io/assets/logo.png"
+      "name": "PWindows",
+      "url": {{ site.data.site.main_url | jsonify }}
     }
+  }
 </script>
