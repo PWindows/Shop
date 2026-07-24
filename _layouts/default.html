@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     {% assign page_description = page.description | default: site.description %}
-    {% assign page_image = page.image | default: '/assets/PWindows.png' %}
+    {% assign page_image = page.image | default: '/assets/PWindows.svg' %}
     {% assign asset_revision = site.github.build_revision %}
     {% unless asset_revision %}{% assign asset_revision = site.time | date: '%s' %}{% endunless %}
     {% capture page_full_title %}{% if page.url == '/' %}PWindows Shop - Official PCoins Store{% else %}{{ page.title }} | {{ site.title }}{% endif %}{% endcapture %}

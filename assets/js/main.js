@@ -413,7 +413,7 @@ function setupProductActions() {
       productId: `donate_${Date.now()}`,
       coins: 0,
       title: `Support PWindows — ${formatCurrency(amount)}`,
-      image: "/assets/PWindows.png",
+      image: "/assets/PWindows.svg",
       stripeId: "donate",
       priceUsd: userCurrency === "USD" ? amount : baseUsd,
       priceMyr: userCurrency === "MYR" ? amount : baseUsd * 4.3,

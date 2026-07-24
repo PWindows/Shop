@@ -1,6 +1,7 @@
 title: PWindows Shop
 description: Buy PCoins and support the PWindows community.
 url: "https://shop.pwindows.qzz.io"
+theme: pwindows-theme
 markdown: kramdown
 kramdown:
   input: GFM
