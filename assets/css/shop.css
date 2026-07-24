@@ -287,8 +287,7 @@
 
 .product-card-link:hover .product-card,
 .product-card-link:focus-visible .product-card {
-  box-shadow: 0 10px 0 rgba(44, 47, 58, 0.2), 0 22px 44px rgba(0, 0, 0, 0.16);
-  transform: translateY(-5px);
+  border-color: rgba(61, 66, 80, 0.4);
 }
 
 .product-card--featured {
@@ -443,7 +442,7 @@
   min-width: 0;
   place-items: center;
   padding: 52px;
-  background: #eef0ea url("../mojang/img/bg-wool-white-dark.png");
+  background: #eef0ea url("../mojang/img/bg-wool-dark.png");
 }
 
 .product-page-img-wrap img {
