@@ -1,47 +1,59 @@
-main_url: https://www.pwindows.qzz.io
+main_url: https://pwindows.qzz.io
 
 navigation:
-  - label: About
+  - translation_key: about
     path: /about
     icon: /assets/mojang/svg/icons/book.png
-  - label: Newest News
+  - translation_key: news
     path: /articles
     icon: /assets/mojang/Invicon_Map.png
-  - label: Staff
+  - translation_key: staff
     path: /staff
     icon: /assets/mojang/svg/icons/color-two-players.svg
-  - label: Departments
+  - translation_key: departments
     path: /departments/
     icon: /assets/mojang/svg/icons/color-chest.svg
-  - label: Games
+  - translation_key: games
     path: /games
     icon: /assets/icons/controller.png
 
-footer:
-  games:
-    - label: Sacred Cubes
-      path: /games/sacred-cubes
-    - label: Obby of Dominance
-      path: /games/obby-of-dominance
-  departments:
-    - label: Minecraft
-      path: /departments/minecraft
-    - label: Roblox
-      path: /departments/roblox
-    - label: Unity
-      path: /departments/unity
-  support:
-    - label: Feedback
-      path: /feedback
-    - label: Site map
-      path: /sitemap
-    - label: Contact us
-      path: /contact
-    - label: Staff
-      path: /staff
+footer_sections:
+  - translation_key: games
+    column_class: footer-column-center
+    path: /games
+    links:
+      - translation_key: sacred-cubes
+        path: /games/sacred-cubes
+      - translation_key: obby-of-dominance
+        path: /games/obby-of-dominance
+  - translation_key: departments
+    column_class: footer-column-departments
+    show_language: true
+    path: /departments/
+    links:
+      - translation_key: mcd
+        path: /departments/minecraft
+      - translation_key: rd
+        path: /departments/roblox
+      - translation_key: ud
+        path: /departments/unity
+  - translation_key: support
+    column_class: footer-column-right
+    show_shop: true
+    url: https://support.pwindows.qzz.io
+    links:
+      - translation_key: feedback
+        path: /feedback
+      - translation_key: sitemap
+        path: /sitemap
+      - translation_key: contact
+        path: /contact
+      - translation_key: staff
+        path: /staff
 
 links:
   support: https://support.pwindows.qzz.io
+  shop: https://shop.pwindows.qzz.io
   discord: https://discord.pwindows.qzz.io/
   youtube: https://www.youtube.com/@PWindows
   twitter: https://x.com/pwindowsz

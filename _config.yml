@@ -3,6 +3,45 @@ description: Buy PCoins and support the PWindows community.
 url: "https://shop.pwindows.qzz.io"
 theme: pwindows-theme
 markdown: kramdown
+default_lang: "en-us"
+languages:
+  [
+    "en-us",
+    "en-gb",
+    "zh-cn",
+    "es-es",
+    "fr-fr",
+    "de-de",
+    "it-it",
+    "pt-pt",
+    "pt-br",
+    "ja-jp",
+    "ko-kr",
+    "ru-ru",
+    "nl-nl",
+    "pl-pl",
+    "sv-se",
+    "da-dk",
+    "no-no",
+    "fi-fi",
+    "es-mx",
+    "fr-ca",
+    "tr-tr",
+    "ar-sa",
+    "he-il",
+    "hi-in",
+    "th-th",
+    "vi-vn",
+    "id-id",
+    "ms-my",
+  ]
+lang_from_path: true
+parallel_localization: false
+exclude_from_localization:
+  - assets
+  - sitemap.xml
+  - pages/robots.txt
+  - CNAME
 kramdown:
   input: GFM
 exclude:
@@ -20,3 +59,5 @@ collections:
   products:
     output: true
     permalink: /products/:name
+plugins:
+  - jekyll-polyglot

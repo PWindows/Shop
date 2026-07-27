@@ -1,0 +1,28 @@
+---
+layout: null
+permalink: /404.html
+sitemap: false
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Redirecting to PWindows</title>
+    <script>
+      (() => {
+        const mainSite = "https://pwindows.qzz.io";
+        const destination = `${mainSite}${window.location.pathname}${window.location.search}${window.location.hash}`;
+        window.location.replace(destination);
+      })();
+    </script>
+    <noscript>
+      <meta http-equiv="refresh" content="0; url=https://pwindows.qzz.io" />
+    </noscript>
+  </head>
+  <body>
+    <p>This page is part of the main PWindows website.</p>
+    <p><a href="https://pwindows.qzz.io">Continue to PWindows</a></p>
+  </body>
+</html>

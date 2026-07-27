@@ -3,7 +3,6 @@ const PROMO_STORAGE_KEY = "pwindows_promo";
 
 let userRegion = "US";
 let userCurrency = "USD";
-let menuController;
 let cartController;
 let locationPromise;
 
@@ -25,8 +24,7 @@ function getFocusable(container) {
 }
 
 function syncBodyLock() {
-  const anyOpen = Boolean(menuController?.isOpen() || cartController?.isOpen());
-  document.body.classList.toggle("overlay-open", anyOpen);
+  document.body.classList.toggle("overlay-open", Boolean(cartController?.isOpen()));
 }
 
 function createOverlayController({ trigger, container, panel, overlay, openClass, openLabel, closeLabel }) {
@@ -94,30 +92,9 @@ function createOverlayController({ trigger, container, panel, overlay, openClass
 
 function setupOverlays() {
   const menuButton = document.getElementById("hamburger");
-  const menu = document.getElementById("mobileMenu");
-  const menuPanel = menu?.querySelector(".nav-menu");
   const cartButton = document.getElementById("cart-btn");
   const cart = document.getElementById("cart-sidebar");
   const cartOverlay = document.getElementById("cart-overlay");
-
-  if (menuButton && menu && menuPanel) {
-    menuController = createOverlayController({
-      trigger: menuButton,
-      container: menu,
-      panel: menuPanel,
-      openClass: "active",
-      openLabel: "Open site menu",
-      closeLabel: "Close site menu",
-    });
-    menuButton.addEventListener("click", () => {
-      const open = !menuController.isOpen();
-      if (open) cartController?.setOpen(false, { restoreFocus: false });
-      menuController.setOpen(open);
-    });
-    menu.addEventListener("click", (event) => {
-      if (event.target === menu || event.target.closest("a")) menuController.setOpen(false);
-    });
-  }
 
   if (cartButton && cart && cartOverlay) {
     cartController = createOverlayController({
@@ -132,7 +109,7 @@ function setupOverlays() {
     cartButton.addEventListener("click", () => {
       const open = !cartController.isOpen();
       if (open) {
-        menuController?.setOpen(false, { restoreFocus: false });
+        if (menuButton?.getAttribute("aria-expanded") === "true") menuButton.click();
         updateCartUI();
       }
       cartController.setOpen(open);
@@ -141,8 +118,10 @@ function setupOverlays() {
     document.getElementById("cart-close")?.addEventListener("click", () => cartController.setOpen(false));
   }
 
-  window.addEventListener("resize", () => {
-    if (window.innerWidth > 768 && menuController?.isOpen()) menuController.setOpen(false);
+  menuButton?.addEventListener("click", () => {
+    if (menuButton.getAttribute("aria-expanded") === "true") {
+      cartController?.setOpen(false, { restoreFocus: false });
+    }
   });
 }
 
