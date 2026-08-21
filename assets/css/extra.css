@@ -315,7 +315,7 @@
   min-height: 220px;
   place-items: center;
   padding: 28px;
-  background: #eef0ea url("../mojang/img/bg-wool-white-dark.png");
+  background: #eef0ea url("../mojang/img/bg-wool-dark.png");
 }
 
 .product-img-wrap img {
