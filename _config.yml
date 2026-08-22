@@ -40,24 +40,19 @@ parallel_localization: false
 exclude_from_localization:
   - assets
   - sitemap.xml
-  - pages/robots.txt
+  - robots.txt
   - CNAME
 kramdown:
   input: GFM
 exclude:
   - README.md
   - vendor/
-  - assets/mojang/fonts/MinecraftFive-Bold.html
-  - assets/mojang/fonts/MinecraftFive-Regular.html
-  - assets/mojang/fonts/MinecraftSeven.html
-  - assets/mojang/fonts/MinecraftTen.html
-  - assets/mojang/fonts/NotoSans-Bold.html
-  - assets/mojang/fonts/NotoSans-BoldItalic.html
-  - assets/mojang/fonts/NotoSans-Italic.html
-  - assets/mojang/fonts/NotoSans-Regular.html
+  - tools/
+  - assets/extra/
 collections:
   products:
     output: true
     permalink: /products/:name
 plugins:
   - jekyll-polyglot
+  - pwindows-theme

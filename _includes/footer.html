@@ -1,4 +1,5 @@
 {% assign footer_strings = site.data.translations[site.active_lang].site.footer %}
+{% assign ui = site.data.ui[site.active_lang] | default: site.data.ui[site.default_lang] %}
 {% assign main_site_url = site.data.site.main_url %}
 {% if site.active_lang != site.default_lang %}
   {% capture main_site_url %}{{ site.data.site.main_url }}/{{ site.active_lang }}{% endcapture %}
@@ -6,14 +7,14 @@
 
 <footer class="footer">
   <nav class="footer-container" aria-labelledby="footer-navigation-heading">
-    <h2 class="sr-only" id="footer-navigation-heading">Footer navigation</h2>
+    <h2 class="sr-only" id="footer-navigation-heading">{{ ui.footer_navigation }}</h2>
 
     <div class="footer-column footer-column-left">
       <a href="{{ main_site_url }}" class="footer-logo" aria-label="PWindows main website">
         {% if site.active_lang == 'zh-cn' %}
-          <img src="{{ '/assets/PWindows-Chinese.svg' | relative_url }}" alt="派视界" />
+          <img src="{{ '/assets/PWindows-Chinese.svg' | relative_url }}" alt="派视界" width="991" height="326" />
         {% else %}
-          <img src="{{ '/assets/PWindows.svg' | relative_url }}" alt="PWindows" />
+          <img src="{{ '/assets/PWindows.svg' | relative_url }}" alt="PWindows" width="1452" height="262" />
         {% endif %}
       </a>
       <p class="footer-copy">&copy; {{ site.time | date: '%Y' }} {{ footer_strings.copy }}</p>
@@ -30,7 +31,9 @@
           </h3>
         {% endif %}
         <h3 class="footer-heading">
-          {% if section.url %}
+          {% if section.link_key %}
+            <a href="{{ site.data.site.links[section.link_key] | escape }}">{{ footer_strings[section.translation_key] }}</a>
+          {% elsif section.url %}
             <a href="{{ section.url | escape }}">{{ footer_strings[section.translation_key] }}</a>
           {% else %}
             <a href="{{ main_site_url }}{{ section.path }}">{{ footer_strings[section.translation_key] }}</a>

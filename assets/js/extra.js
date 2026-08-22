@@ -1,10 +1,32 @@
-const CART_STORAGE_KEY = "pwindows_cart";
+const CART_STORAGE_KEY = "pwindows_cart_v2";
+const LEGACY_CART_STORAGE_KEY = "pwindows_cart";
 const PROMO_STORAGE_KEY = "pwindows_promo";
+const PLAYER_STORAGE_KEY = "pwindows_player_lookup_v2";
+const CURRENCY_STORAGE_KEY = "pwindows_currency";
+const MAX_PRODUCT_QUANTITY = 99;
+const SUPPORTED_CURRENCIES = new Set(["USD", "MYR", "CNY"]);
+const PLAYER_NAME_PATTERN = /^[a-zA-Z0-9_]{3,16}$/;
+const PLAYER_UUID_PATTERN = /^[0-9a-f]{32}$/i;
 
-let userRegion = "US";
 let userCurrency = "USD";
 let cartController;
-let locationPromise;
+let shopStrings = {};
+let shopConfig = { checkoutEndpoint: "", checkoutAllowedHosts: [] };
+
+function parseJsonScript(id, fallback = {}) {
+  const node = document.getElementById(id);
+  if (!node) return fallback;
+  try {
+    const value = JSON.parse(node.textContent);
+    return value && typeof value === "object" && !Array.isArray(value) ? value : fallback;
+  } catch (_) {
+    return fallback;
+  }
+}
+
+function text(key, fallback) {
+  return typeof shopStrings[key] === "string" ? shopStrings[key] : fallback;
+}
 
 function announce(message) {
   const status = document.getElementById("site-status");
@@ -15,6 +37,31 @@ function announce(message) {
   });
 }
 
+function safeStorageGet(storage, key) {
+  try {
+    return storage.getItem(key);
+  } catch (_) {
+    return null;
+  }
+}
+
+function safeStorageSet(storage, key, value) {
+  try {
+    storage.setItem(key, value);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function safeStorageRemove(storage, key) {
+  try {
+    storage.removeItem(key);
+  } catch (_) {
+    // Storage can be unavailable in privacy modes; in-memory state still works.
+  }
+}
+
 function getFocusable(container) {
   return Array.from(
     container.querySelectorAll(
@@ -23,8 +70,32 @@ function getFocusable(container) {
   ).filter((element) => !element.hidden && element.getAttribute("aria-hidden") !== "true");
 }
 
+function setCartBackgroundInert(inert) {
+  Array.from(document.body.children).forEach((element) => {
+    if (
+      element.id === "cart-sidebar" ||
+      element.id === "cart-overlay" ||
+      element.tagName === "SCRIPT"
+    ) {
+      return;
+    }
+
+    if (inert) {
+      if (!element.hasAttribute("inert")) {
+        element.setAttribute("inert", "");
+        element.dataset.cartInert = "true";
+      }
+    } else if (element.dataset.cartInert === "true") {
+      element.removeAttribute("inert");
+      delete element.dataset.cartInert;
+    }
+  });
+}
+
 function syncBodyLock() {
-  document.body.classList.toggle("overlay-open", Boolean(cartController?.isOpen()));
+  const cartOpen = Boolean(cartController?.isOpen());
+  document.body.classList.toggle("overlay-open", cartOpen);
+  setCartBackgroundInert(cartOpen);
 }
 
 function createOverlayController({ trigger, container, panel, overlay, openClass, openLabel, closeLabel }) {
@@ -46,6 +117,7 @@ function createOverlayController({ trigger, container, panel, overlay, openClass
       overlay?.setAttribute("aria-hidden", "false");
       trigger.setAttribute("aria-expanded", "true");
       trigger.setAttribute("aria-label", closeLabel);
+      syncBodyLock();
       if (moveFocus) window.requestAnimationFrame(() => getFocusable(panel)[0]?.focus());
     } else {
       container.classList.remove(openClass);
@@ -55,10 +127,9 @@ function createOverlayController({ trigger, container, panel, overlay, openClass
       overlay?.setAttribute("aria-hidden", "true");
       trigger.setAttribute("aria-expanded", "false");
       trigger.setAttribute("aria-label", openLabel);
+      syncBodyLock();
       if (restoreFocus && lastFocused instanceof HTMLElement) lastFocused.focus();
     }
-
-    syncBodyLock();
   }
 
   function handleKeydown(event) {
@@ -103,8 +174,8 @@ function setupOverlays() {
       panel: cart,
       overlay: cartOverlay,
       openClass: "open",
-      openLabel: "Open shopping cart",
-      closeLabel: "Close shopping cart",
+      openLabel: text("open_cart", "Open shopping cart"),
+      closeLabel: text("close_cart", "Close shopping cart"),
     });
     cartButton.addEventListener("click", () => {
       const open = !cartController.isOpen();
@@ -125,28 +196,13 @@ function setupOverlays() {
   });
 }
 
-function getLocationFromIP() {
-  if (!locationPromise) {
-    locationPromise = fetch("https://ipapi.co/json/")
-      .then((response) => (response.ok ? response.json() : null))
-      .then((data) => data?.country_code?.toUpperCase() || null)
-      .catch(() => null);
+function regionFromLocale(locale) {
+  if (!locale) return null;
+  try {
+    return typeof Intl.Locale === "function" ? new Intl.Locale(locale).region?.toUpperCase() || null : null;
+  } catch (_) {
+    return locale.match(/[-_]([A-Z]{2})/i)?.[1]?.toUpperCase() || null;
   }
-  return locationPromise;
-}
-
-function detectRegion() {
-  const locales = [navigator.language, ...(navigator.languages || [])].filter(Boolean);
-  for (const locale of locales) {
-    try {
-      const region = typeof Intl.Locale === "function" ? new Intl.Locale(locale).region : null;
-      if (region) return region.toUpperCase();
-    } catch (_) {
-      const match = locale.match(/[-_]([A-Z]{2})/i);
-      if (match) return match[1].toUpperCase();
-    }
-  }
-  return "US";
 }
 
 function currencyByRegion(region) {
@@ -155,44 +211,57 @@ function currencyByRegion(region) {
   return "USD";
 }
 
+function chooseInitialCurrency({ storedCurrency, activeLocale, browserLocales = [] }) {
+  if (SUPPORTED_CURRENCIES.has(storedCurrency)) return storedCurrency;
+
+  const activeRegion = regionFromLocale(activeLocale);
+  if (activeRegion === "MY" || activeRegion === "CN") return currencyByRegion(activeRegion);
+
+  for (const locale of browserLocales) {
+    const region = regionFromLocale(locale);
+    if (region === "MY" || region === "CN") return currencyByRegion(region);
+  }
+  return "USD";
+}
+
 function formatCurrency(amount, currency = userCurrency) {
   const numericAmount = Number(amount);
   if (!Number.isFinite(numericAmount)) return "—";
   try {
-    return new Intl.NumberFormat(undefined, {
+    return new Intl.NumberFormat(document.documentElement.lang || undefined, {
       style: "currency",
       currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(numericAmount);
   } catch (_) {
-    return `$${numericAmount.toFixed(2)}`;
+    return `${currency} ${numericAmount.toFixed(2)}`;
   }
 }
 
-function priceForRegion(source) {
-  const usd = Number.parseFloat(source.dataset.priceUsd);
-  const myr = Number.parseFloat(source.dataset.priceMyr);
-  const cny = Number.parseFloat(source.dataset.priceCny);
-  if (userRegion === "MY" && Number.isFinite(myr)) return { amount: myr, currency: "MYR", label: "Malaysia" };
-  if (userRegion === "CN" && Number.isFinite(cny)) return { amount: cny, currency: "CNY", label: "China" };
-  return { amount: usd, currency: "USD", label: "USD" };
+function priceForCurrency(source, currency = userCurrency) {
+  const field = currency === "MYR" ? "priceMyr" : currency === "CNY" ? "priceCny" : "priceUsd";
+  const amount = Number.parseFloat(source.dataset[field]);
+  return { amount: Number.isFinite(amount) ? amount : 0, currency, label: currency };
 }
 
-async function initRegionalPrices() {
-  userRegion = (await getLocationFromIP()) || detectRegion();
-  userCurrency = currencyByRegion(userRegion);
-  window.userRegion = userRegion;
-  window.userCurrency = userCurrency;
+function convertDisplayAmount(amount, fromCurrency, toCurrency) {
+  if (fromCurrency === toCurrency) return amount;
+  const usd = fromCurrency === "MYR" ? amount / 4.3 : fromCurrency === "CNY" ? amount / 6 : amount;
+  if (toCurrency === "MYR") return usd * 4.3;
+  if (toCurrency === "CNY") return usd * 6;
+  return usd;
+}
 
+function updateRegionalPrices() {
   document.querySelectorAll(".js-regional-price").forEach((node) => {
-    const price = priceForRegion(node);
+    const price = priceForCurrency(node);
     node.textContent = formatCurrency(price.amount, price.currency);
   });
 
   const detailPrice = document.getElementById("product-page-price");
   if (detailPrice) {
-    const price = priceForRegion(detailPrice);
+    const price = priceForCurrency(detailPrice);
     const label = document.getElementById("price-label");
     const buyPrice = document.getElementById("buy-price");
     if (label) label.textContent = price.label;
@@ -200,55 +269,166 @@ async function initRegionalPrices() {
   }
 
   const donateCurrency = document.getElementById("donate-currency");
-  if (donateCurrency) donateCurrency.textContent = userCurrency === "MYR" ? "RM" : userCurrency === "CNY" ? "¥" : "$";
+  if (donateCurrency) donateCurrency.textContent = userCurrency;
+  document.querySelectorAll("[data-currency-select]").forEach((select) => {
+    select.value = userCurrency;
+  });
   updateCartUI();
 }
 
-function getCart() {
+function setupCurrency() {
+  const browserLocales = [navigator.language, ...(navigator.languages || [])].filter(Boolean);
+  userCurrency = chooseInitialCurrency({
+    storedCurrency: safeStorageGet(localStorage, CURRENCY_STORAGE_KEY),
+    activeLocale: document.documentElement.lang,
+    browserLocales,
+  });
+  window.userCurrency = userCurrency;
+
+  document.querySelectorAll("[data-currency-select]").forEach((select) => {
+    select.value = userCurrency;
+    select.addEventListener("change", () => {
+      if (!SUPPORTED_CURRENCIES.has(select.value)) return;
+      userCurrency = select.value;
+      window.userCurrency = userCurrency;
+      safeStorageSet(localStorage, CURRENCY_STORAGE_KEY, userCurrency);
+      updateRegionalPrices();
+    });
+  });
+  updateRegionalPrices();
+}
+
+function normalizeProductId(value) {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim().replace(/\/+$/, "");
+  const segments = trimmed.split("/").filter(Boolean);
+  if (segments.some((segment) => segment === "." || segment === "..")) return null;
+  const candidate = segments.length ? segments.at(-1) : trimmed;
+  if (!candidate) return null;
+  if (candidate.startsWith("donate_")) return "donate";
+  return /^[a-z0-9][a-z0-9-]{0,63}$/i.test(candidate) ? candidate.toLowerCase() : null;
+}
+
+function finitePrice(value) {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) && numeric >= 0 ? numeric : 0;
+}
+
+function normalizeCartItem(item) {
+  if (!item || typeof item !== "object" || Array.isArray(item)) return null;
+  const productId = normalizeProductId(item.productId || item.product_id);
+  if (!productId) return null;
+
+  const isDonation = Boolean(item.isDonation) || productId === "donate";
+  const donationCurrency = SUPPORTED_CURRENCIES.has(item.donationCurrency)
+    ? item.donationCurrency
+    : SUPPORTED_CURRENCIES.has(item.currency)
+      ? item.currency
+      : userCurrency;
+  const legacyDonationAmount = finitePrice(item.donationAmount);
+  const suppliedMinor = Number.parseInt(item.donationAmountMinor, 10);
+  const donationAmountMinor = Number.isSafeInteger(suppliedMinor) && suppliedMinor >= 100
+    ? suppliedMinor
+    : Math.round(legacyDonationAmount * 100);
+  if (isDonation && donationAmountMinor < 100) return null;
+
+  const quantity = isDonation
+    ? 1
+    : Math.min(MAX_PRODUCT_QUANTITY, Math.max(1, Number.parseInt(item.quantity, 10) || 1));
+  const cartId = isDonation ? `donate-${donationCurrency}` : productId;
+
+  return {
+    cartId,
+    productId: isDonation ? "donate" : productId,
+    coins: Math.max(0, Number.parseInt(item.coins, 10) || 0),
+    title: typeof item.title === "string" && item.title.trim() ? item.title.trim().slice(0, 120) : "Product",
+    image: typeof item.image === "string" && item.image.startsWith("/")
+      ? item.image
+      : "/assets/img/products/placeholder.png",
+    imageWidth: Math.max(1, Number.parseInt(item.imageWidth, 10) || (isDonation ? 1452 : 1408)),
+    imageHeight: Math.max(1, Number.parseInt(item.imageHeight, 10) || (isDonation ? 262 : 702)),
+    priceUsd: finitePrice(item.priceUsd),
+    priceMyr: finitePrice(item.priceMyr),
+    priceCny: finitePrice(item.priceCny),
+    quantity,
+    isDonation,
+    donationAmountMinor: isDonation ? donationAmountMinor : undefined,
+    donationCurrency: isDonation ? donationCurrency : undefined,
+  };
+}
+
+function parseCart(raw) {
+  if (!raw) return [];
   try {
-    const value = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || "[]");
-    return Array.isArray(value) ? value : [];
+    const value = JSON.parse(raw);
+    if (!Array.isArray(value)) return [];
+    return value.map(normalizeCartItem).filter(Boolean);
   } catch (_) {
     return [];
   }
 }
 
-function saveCart(cart) {
-  localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-  updateCartUI();
+function getCart() {
+  const current = safeStorageGet(localStorage, CART_STORAGE_KEY);
+  if (current !== null) return parseCart(current);
+
+  const legacy = safeStorageGet(localStorage, LEGACY_CART_STORAGE_KEY);
+  const migrated = parseCart(legacy);
+  safeStorageSet(localStorage, CART_STORAGE_KEY, JSON.stringify(migrated));
+  safeStorageRemove(localStorage, LEGACY_CART_STORAGE_KEY);
+  return migrated;
+}
+
+function saveCart(cart, focusTarget = null) {
+  const normalized = cart.map(normalizeCartItem).filter(Boolean);
+  safeStorageSet(localStorage, CART_STORAGE_KEY, JSON.stringify(normalized));
+  updateCartUI(focusTarget);
 }
 
 function getItemPrice(item) {
-  if (userRegion === "MY") return Number(item.priceMyr) || 0;
-  if (userRegion === "CN") return Number(item.priceCny) || 0;
-  return Number(item.priceUsd) || 0;
+  if (item.isDonation) {
+    const original = item.donationAmountMinor / 100;
+    return convertDisplayAmount(original, item.donationCurrency, userCurrency);
+  }
+  if (userCurrency === "MYR") return item.priceMyr;
+  if (userCurrency === "CNY") return item.priceCny;
+  return item.priceUsd;
 }
 
 function productFromElement(element) {
-  return {
+  return normalizeCartItem({
     productId: element.dataset.productId,
-    coins: Number.parseInt(element.dataset.coins, 10) || 0,
-    title: element.dataset.title || "Product",
-    image: element.dataset.image || "/assets/img/products/placeholder.png",
-    stripeId: element.dataset.stripeId || "",
-    priceUsd: Number.parseFloat(element.dataset.priceUsd) || 0,
-    priceMyr: Number.parseFloat(element.dataset.priceMyr) || 0,
-    priceCny: Number.parseFloat(element.dataset.priceCny) || 0,
+    coins: element.dataset.coins,
+    title: element.dataset.title,
+    image: element.dataset.image,
+    imageWidth: element.dataset.imageWidth,
+    imageHeight: element.dataset.imageHeight,
+    priceUsd: element.dataset.priceUsd,
+    priceMyr: element.dataset.priceMyr,
+    priceCny: element.dataset.priceCny,
     quantity: 1,
-  };
+  });
 }
 
 function addProduct(product, feedbackButton) {
+  const normalized = normalizeCartItem(product);
+  if (!normalized) return;
   const cart = getCart();
-  const existing = cart.find((item) => item.productId === product.productId);
-  if (existing) existing.quantity += 1;
-  else cart.push(product);
+  const existing = cart.find((item) => item.cartId === normalized.cartId);
+  if (existing?.isDonation) {
+    existing.donationAmountMinor += normalized.donationAmountMinor;
+    existing.title = normalized.title;
+  } else if (existing) {
+    existing.quantity = Math.min(MAX_PRODUCT_QUANTITY, existing.quantity + 1);
+  } else {
+    cart.push(normalized);
+  }
   saveCart(cart);
-  announce(`${product.title} added to cart.`);
+  announce(`${normalized.title} added to cart.`);
 
   if (feedbackButton) {
     const original = feedbackButton.textContent;
-    feedbackButton.textContent = "Added! ✓";
+    feedbackButton.textContent = text("added", "Added! ✓");
     feedbackButton.disabled = true;
     window.setTimeout(() => {
       feedbackButton.textContent = original;
@@ -257,29 +437,39 @@ function addProduct(product, feedbackButton) {
   }
 }
 
-function removeCartItem(productId) {
-  const item = getCart().find((entry) => entry.productId === productId);
-  saveCart(getCart().filter((entry) => entry.productId !== productId));
+function removeCartItem(cartId) {
+  const cart = getCart();
+  const index = cart.findIndex((entry) => entry.cartId === cartId);
+  const item = cart[index];
+  const next = cart.filter((entry) => entry.cartId !== cartId);
+  const fallback = next[Math.min(index, Math.max(0, next.length - 1))];
+  saveCart(next, fallback ? { cartId: fallback.cartId, action: "remove" } : { heading: true });
   announce(`${item?.title || "Item"} removed from cart.`);
 }
 
-function changeCartQuantity(productId, change) {
+function changeCartQuantity(cartId, change) {
   const cart = getCart();
-  const item = cart.find((entry) => entry.productId === productId);
-  if (!item) return;
-  item.quantity += change;
-  if (item.quantity <= 0) removeCartItem(productId);
-  else saveCart(cart);
+  const item = cart.find((entry) => entry.cartId === cartId);
+  if (!item || item.isDonation) return;
+  const quantity = Math.min(MAX_PRODUCT_QUANTITY, item.quantity + change);
+  if (quantity <= 0) removeCartItem(cartId);
+  else {
+    item.quantity = quantity;
+    saveCart(cart, { cartId, action: change > 0 ? "increase" : "decrease" });
+  }
 }
 
 function createCartItem(item) {
   const wrapper = document.createElement("article");
   wrapper.className = "cart-item";
+  wrapper.dataset.cartId = item.cartId;
 
   const image = document.createElement("img");
   image.className = "cart-item-img";
   image.src = item.image;
   image.alt = "";
+  image.width = item.imageWidth;
+  image.height = item.imageHeight;
   image.addEventListener("error", () => {
     image.src = "/assets/img/products/placeholder.png";
   }, { once: true });
@@ -290,7 +480,7 @@ function createCartItem(item) {
   title.textContent = item.title;
   const coins = document.createElement("p");
   coins.className = "cart-item-coins";
-  coins.textContent = item.coins ? `${item.coins.toLocaleString()} PCoins` : "PWindows Support";
+  coins.textContent = item.coins ? `${item.coins.toLocaleString()} PCoins` : text("support_title", "PWindows Support");
   const price = document.createElement("p");
   price.className = "cart-item-price";
   price.textContent = formatCurrency(getItemPrice(item));
@@ -298,35 +488,60 @@ function createCartItem(item) {
 
   const controls = document.createElement("div");
   controls.className = "cart-item-controls";
-  const decrease = document.createElement("button");
-  decrease.className = "qty-btn btn";
-  decrease.type = "button";
-  decrease.textContent = "−";
-  decrease.setAttribute("aria-label", `Decrease ${item.title} quantity`);
-  decrease.addEventListener("click", () => changeCartQuantity(item.productId, -1));
-  const quantity = document.createElement("span");
-  quantity.className = "qty-display";
-  quantity.textContent = item.quantity;
-  quantity.setAttribute("aria-label", `Quantity ${item.quantity}`);
-  const increase = document.createElement("button");
-  increase.className = "qty-btn btn";
-  increase.type = "button";
-  increase.textContent = "+";
-  increase.setAttribute("aria-label", `Increase ${item.title} quantity`);
-  increase.addEventListener("click", () => changeCartQuantity(item.productId, 1));
+  if (!item.isDonation) {
+    const decrease = document.createElement("button");
+    decrease.className = "qty-btn btn";
+    decrease.type = "button";
+    decrease.textContent = "−";
+    decrease.dataset.cartAction = "decrease";
+    decrease.dataset.cartId = item.cartId;
+    decrease.setAttribute("aria-label", `Decrease ${item.title} quantity`);
+    decrease.addEventListener("click", () => changeCartQuantity(item.cartId, -1));
+    const quantity = document.createElement("span");
+    quantity.className = "qty-display";
+    quantity.textContent = item.quantity;
+    quantity.setAttribute("aria-label", `Quantity ${item.quantity}`);
+    const increase = document.createElement("button");
+    increase.className = "qty-btn btn";
+    increase.type = "button";
+    increase.textContent = "+";
+    increase.disabled = item.quantity >= MAX_PRODUCT_QUANTITY;
+    increase.dataset.cartAction = "increase";
+    increase.dataset.cartId = item.cartId;
+    increase.setAttribute("aria-label", `Increase ${item.title} quantity`);
+    increase.addEventListener("click", () => changeCartQuantity(item.cartId, 1));
+    controls.append(decrease, quantity, increase);
+  }
+
   const remove = document.createElement("button");
   remove.className = "cart-item-remove btn";
   remove.type = "button";
-  remove.textContent = "Remove";
-  remove.setAttribute("aria-label", `Remove ${item.title} from cart`);
-  remove.addEventListener("click", () => removeCartItem(item.productId));
-  controls.append(decrease, quantity, increase, remove);
+  remove.textContent = text("remove", "Remove");
+  remove.dataset.cartAction = "remove";
+  remove.dataset.cartId = item.cartId;
+  remove.setAttribute("aria-label", `${text("remove", "Remove")} ${item.title}`);
+  remove.addEventListener("click", () => removeCartItem(item.cartId));
+  controls.append(remove);
 
   wrapper.append(image, info, controls);
   return wrapper;
 }
 
-function updateCartUI() {
+function restoreCartFocus(target) {
+  if (!target) return;
+  window.requestAnimationFrame(() => {
+    if (target.heading) {
+      const heading = document.getElementById("cart-heading");
+      heading?.setAttribute("tabindex", "-1");
+      heading?.focus();
+      return;
+    }
+    const selector = `[data-cart-action="${CSS.escape(target.action)}"][data-cart-id="${CSS.escape(target.cartId)}"]`;
+    document.querySelector(selector)?.focus();
+  });
+}
+
+function updateCartUI(focusTarget = null) {
   const count = document.getElementById("cart-count");
   const itemsContainer = document.getElementById("cart-items");
   const subtotalNode = document.getElementById("cart-subtotal");
@@ -334,21 +549,21 @@ function updateCartUI() {
   if (!count || !itemsContainer || !subtotalNode || !totalNode) return;
 
   const cart = getCart();
-  const totalItems = cart.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
+  const totalItems = cart.reduce((sum, item) => sum + (item.isDonation ? 1 : item.quantity), 0);
   count.textContent = totalItems;
   count.hidden = totalItems === 0;
-  const cartLabel = cartController?.isOpen()
-    ? "Close shopping cart"
-    : totalItems
-      ? `Open shopping cart, ${totalItems} items`
-      : "Open shopping cart";
-  document.getElementById("cart-btn")?.setAttribute("aria-label", cartLabel);
+  document.getElementById("cart-btn")?.setAttribute(
+    "aria-label",
+    cartController?.isOpen()
+      ? text("close_cart", "Close shopping cart")
+      : `${text("open_cart", "Open shopping cart")}${totalItems ? `, ${totalItems} ${text("items", "items")}` : ""}`,
+  );
 
   itemsContainer.replaceChildren();
   if (!cart.length) {
     const empty = document.createElement("p");
     empty.className = "cart-empty";
-    empty.textContent = "Your cart is empty.";
+    empty.textContent = text("empty_cart", "Your cart is empty.");
     itemsContainer.append(empty);
   } else {
     cart.forEach((item) => itemsContainer.append(createCartItem(item)));
@@ -360,21 +575,24 @@ function updateCartUI() {
   document.getElementById("cart-discount-row")?.toggleAttribute("hidden", true);
   const checkoutButton = document.getElementById("cart-checkout-btn");
   if (checkoutButton) checkoutButton.disabled = cart.length === 0;
+  restoreCartFocus(focusTarget);
 }
 
 function setupProductActions() {
   document.querySelectorAll("[data-add-product]").forEach((button) => {
     button.addEventListener("click", () => {
       const card = button.closest(".grid-item")?.querySelector(".product-card");
-      if (card) addProduct(productFromElement(card), button);
+      const product = card ? productFromElement(card) : null;
+      if (product) addProduct(product, button);
     });
   });
 
   document.getElementById("buy-btn")?.addEventListener("click", () => {
-    const product = document.getElementById("product-page-data");
+    const element = document.getElementById("product-page-data");
     const button = document.getElementById("buy-btn");
+    const product = element ? productFromElement(element) : null;
     if (!product) return;
-    addProduct(productFromElement(product), button);
+    addProduct(product, button);
     cartController?.setOpen(true);
   });
 
@@ -383,25 +601,22 @@ function setupProductActions() {
     const amount = Number.parseFloat(input?.value);
     if (!Number.isFinite(amount) || amount < 1) {
       input?.focus();
-      announce("Enter a donation amount of at least one.");
+      announce(text("donation_invalid", "Enter a donation amount of at least one."));
       return;
     }
 
-    const baseUsd = userCurrency === "USD" ? amount : userCurrency === "MYR" ? amount / 4.3 : amount / 6;
-    const product = {
-      productId: `donate_${Date.now()}`,
+    addProduct({
+      productId: "donate",
       coins: 0,
-      title: `Support PWindows — ${formatCurrency(amount)}`,
+      title: text("support_title", "Support PWindows"),
       image: "/assets/PWindows.svg",
-      stripeId: "donate",
-      priceUsd: userCurrency === "USD" ? amount : baseUsd,
-      priceMyr: userCurrency === "MYR" ? amount : baseUsd * 4.3,
-      priceCny: userCurrency === "CNY" ? amount : baseUsd * 6,
+      imageWidth: 1452,
+      imageHeight: 262,
       quantity: 1,
       isDonation: true,
-      donationAmount: amount,
-    };
-    addProduct(product, document.getElementById("donate-add-btn"));
+      donationAmountMinor: Math.round(amount * 100),
+      donationCurrency: userCurrency,
+    }, document.getElementById("donate-add-btn"));
     input.value = "";
   });
 
@@ -409,10 +624,7 @@ function setupProductActions() {
     const input = document.getElementById("promo-input");
     const message = document.getElementById("promo-msg");
     if (!input?.value.trim() || !message) return;
-    message.textContent = "Checking code...";
-    window.setTimeout(() => {
-      message.textContent = "Promo codes are coming soon.";
-    }, 500);
+    message.textContent = text("promo_coming_soon", "Promo codes are coming soon.");
   });
 }
 
@@ -468,6 +680,52 @@ function setupCatalog() {
   filter();
 }
 
+function normalizeUuid(value) {
+  if (typeof value !== "string") return null;
+  const compact = value.replaceAll("-", "").toLowerCase();
+  return PLAYER_UUID_PATTERN.test(compact) ? compact : null;
+}
+
+function validatePlayerLookupResponse(data) {
+  if (!data || typeof data !== "object" || Array.isArray(data) || typeof data.exists !== "boolean") return null;
+  if (!data.exists) return { exists: false };
+  if (!PLAYER_NAME_PATTERN.test(data.username || "")) return null;
+  const uuid = normalizeUuid(data.uuid);
+  if (!uuid) return null;
+  if (data.lookup_token !== undefined && (typeof data.lookup_token !== "string" || data.lookup_token.length > 2048)) return null;
+  return {
+    exists: true,
+    username: data.username,
+    uuid,
+    lookupToken: data.lookup_token || null,
+  };
+}
+
+function getPlayerLookup() {
+  const raw = safeStorageGet(sessionStorage, PLAYER_STORAGE_KEY);
+  if (!raw) return null;
+  try {
+    const stored = JSON.parse(raw);
+    const normalized = validatePlayerLookupResponse({ ...stored, exists: true, lookup_token: stored.lookupToken });
+    return normalized?.exists ? normalized : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function savePlayerLookup(player) {
+  safeStorageSet(sessionStorage, PLAYER_STORAGE_KEY, JSON.stringify({
+    username: player.username,
+    uuid: player.uuid,
+    lookupToken: player.lookupToken,
+  }));
+}
+
+function clearLegacyPlayerState() {
+  safeStorageRemove(sessionStorage, "pw_username");
+  safeStorageRemove(sessionStorage, "pw_uuid");
+}
+
 function setupPlayerGate() {
   const form = document.getElementById("gate-form");
   const main = document.getElementById("gate-main");
@@ -479,19 +737,21 @@ function setupPlayerGate() {
   const error = document.getElementById("gate-error");
   const hint = document.getElementById("gate-hint");
 
-  function showVerified(username, uuid) {
+  function showLookup(player, moveFocus = false) {
     main.hidden = true;
     success.hidden = false;
-    document.getElementById("gate-welcome").textContent = `Hey, ${username}!`;
-    document.getElementById("gate-avatar").style.backgroundImage = `url("https://crafatar.com/avatars/${encodeURIComponent(uuid)}?size=96&overlay")`;
+    const welcome = document.getElementById("gate-welcome");
+    welcome.textContent = `${player.username}`;
+    document.getElementById("gate-avatar").style.backgroundImage = `url("https://crafatar.com/avatars/${encodeURIComponent(player.uuid)}?size=96&overlay")`;
     const redirect = new URLSearchParams(window.location.search).get("redirect");
     const link = document.getElementById("gate-shop-link");
     if (link && redirect?.startsWith("/") && !redirect.startsWith("//")) link.href = redirect;
+    if (moveFocus) window.requestAnimationFrame(() => welcome.focus());
   }
 
-  const savedUsername = sessionStorage.getItem("pw_username");
-  const savedUuid = sessionStorage.getItem("pw_uuid");
-  if (savedUsername && savedUuid) showVerified(savedUsername, savedUuid);
+  clearLegacyPlayerState();
+  const saved = getPlayerLookup();
+  if (saved) showLookup(saved);
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -499,36 +759,44 @@ function setupPlayerGate() {
     error.textContent = "";
     hint.textContent = "";
 
-    if (!/^[a-zA-Z0-9_]{3,16}$/.test(username)) {
-      error.textContent = username ? "Enter a valid Minecraft username." : "Please enter your username.";
+    if (!PLAYER_NAME_PATTERN.test(username)) {
+      error.textContent = username ? text("invalid_username", "Enter a valid Minecraft username.") : text("missing_username", "Please enter your username.");
       input.focus();
       return;
     }
 
-    button.textContent = "Checking...";
+    button.textContent = text("checking", "Checking...");
     button.disabled = true;
     input.disabled = true;
     try {
-      const response = await fetch(`https://api.pwindows.qzz.io/shop/login?username=${encodeURIComponent(username)}`);
-      if (!response.ok) throw new Error("Verification request failed");
-      const data = await response.json();
-      if (!data.exists) {
-        error.textContent = "You haven’t joined PWindows yet!";
-        hint.textContent = "Join at play.pwindows.qzz.io first, then come back.";
+      const response = await fetch(`https://api.pwindows.qzz.io/shop/login?username=${encodeURIComponent(username)}`, {
+        headers: { Accept: "application/json" },
+        referrerPolicy: "strict-origin-when-cross-origin",
+      });
+      if (!response.ok) throw new Error("Player lookup failed");
+      const player = validatePlayerLookupResponse(await response.json());
+      if (!player) throw new Error("Invalid player lookup response");
+      if (!player.exists) {
+        error.textContent = text("not_joined", "That player has not joined PWindows yet.");
+        hint.textContent = text("join_hint", "Join at play.pwindows.qzz.io first, then come back.");
         return;
       }
-      sessionStorage.setItem("pw_username", data.username);
-      sessionStorage.setItem("pw_uuid", data.uuid);
-      showVerified(data.username, data.uuid);
-      announce(`Welcome, ${data.username}. Player verified.`);
+      savePlayerLookup(player);
+      showLookup(player, true);
+      announce(`${player.username}. Player lookup complete; checkout will revalidate this player.`);
     } catch (_) {
-      error.textContent = "Something went wrong. Please try again.";
+      error.textContent = text("lookup_error", "Player lookup is unavailable. Please try again.");
     } finally {
-      button.textContent = "Enter Shop";
+      button.textContent = text("enter_shop", "Look up player");
       button.disabled = false;
       input.disabled = false;
     }
   });
+}
+
+function localizedRoot() {
+  const lang = document.documentElement.lang;
+  return lang && lang !== "en-us" ? `/${lang}/` : "/";
 }
 
 function setupPlayerSession() {
@@ -536,22 +804,20 @@ function setupPlayerSession() {
   const productPage = document.getElementById("product-page-data");
   if (!pill && !productPage) return;
 
-  const username = sessionStorage.getItem("pw_username");
-  const uuid = sessionStorage.getItem("pw_uuid");
-  if (!username || !uuid) {
+  const player = getPlayerLookup();
+  if (!player) {
     const redirect = encodeURIComponent(window.location.pathname + window.location.search);
-    window.location.replace(`/?redirect=${redirect}`);
+    window.location.replace(`${localizedRoot()}?redirect=${redirect}`);
     return;
   }
 
   if (pill) {
     pill.hidden = false;
-    document.getElementById("shop-user-name").textContent = username;
-    document.getElementById("shop-user-avatar").style.backgroundImage = `url("https://crafatar.com/avatars/${encodeURIComponent(uuid)}?size=34&overlay")`;
+    document.getElementById("shop-user-name").textContent = player.username;
+    document.getElementById("shop-user-avatar").style.backgroundImage = `url("https://crafatar.com/avatars/${encodeURIComponent(player.uuid)}?size=34&overlay")`;
     document.getElementById("shop-user-switch")?.addEventListener("click", () => {
-      sessionStorage.removeItem("pw_username");
-      sessionStorage.removeItem("pw_uuid");
-      window.location.assign("/");
+      safeStorageRemove(sessionStorage, PLAYER_STORAGE_KEY);
+      window.location.assign(localizedRoot());
     });
   }
 }
@@ -565,56 +831,82 @@ function applyPromoToCart() {
     message.textContent = "";
     return;
   }
-  message.textContent = "Validating...";
-  localStorage.setItem(PROMO_STORAGE_KEY, code);
-  window.setTimeout(() => {
-    message.textContent = `Promo code “${code}” saved for checkout.`;
-    announce("Promo code saved for checkout.");
-  }, 500);
+  safeStorageSet(localStorage, PROMO_STORAGE_KEY, code);
+  message.textContent = text("promo_saved", "Promo code saved for checkout.");
+  announce(text("promo_saved", "Promo code saved for checkout."));
+}
+
+function buildCheckoutPayload(cart, player, requestedCurrency, promoCode) {
+  return {
+    requested_currency: requestedCurrency,
+    player: {
+      username: player.username,
+      uuid: player.uuid,
+      ...(player.lookupToken ? { lookup_token: player.lookupToken } : {}),
+    },
+    items: cart.filter((item) => !item.isDonation).map((item) => ({
+      product_id: item.productId,
+      quantity: Math.min(MAX_PRODUCT_QUANTITY, Math.max(1, item.quantity)),
+    })),
+    donations: cart.filter((item) => item.isDonation).map((item) => ({
+      amount_minor: item.donationAmountMinor,
+      currency: item.donationCurrency,
+    })),
+    ...(promoCode ? { promo_code: promoCode } : {}),
+  };
+}
+
+function isAllowedCheckoutUrl(value, allowedHosts) {
+  if (typeof value !== "string") return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && allowedHosts.includes(url.hostname);
+  } catch (_) {
+    return false;
+  }
 }
 
 async function checkoutFromCart() {
   const cart = getCart();
-  const uuid = sessionStorage.getItem("pw_uuid");
-  const username = sessionStorage.getItem("pw_username");
-  if (!uuid || !username) {
-    window.location.assign("/?redirect=/products");
+  const player = getPlayerLookup();
+  if (!player) {
+    window.location.assign(`${localizedRoot()}?redirect=${encodeURIComponent("/products")}`);
     return;
   }
   if (!cart.length) {
-    announce("Your cart is empty.");
+    announce(text("empty_cart", "Your cart is empty."));
     return;
   }
 
   const button = document.getElementById("cart-checkout-btn");
   button.disabled = true;
-  button.textContent = "Processing...";
+  button.textContent = text("processing", "Processing...");
+  const endpoint = shopConfig.checkoutEndpoint;
+  if (endpoint === "https://your-worker.example.com/create-checkout") {
+    announce(text("checkout_placeholder", "Checkout is coming soon."));
+    button.disabled = false;
+    button.textContent = text("checkout", "Proceed to Checkout");
+    return;
+  }
+
   try {
-    const response = await fetch("https://your-worker.example.com/create-checkout", {
+    const payload = buildCheckoutPayload(cart, player, userCurrency, safeStorageGet(localStorage, PROMO_STORAGE_KEY));
+    const response = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        items: cart.map((item) => ({
-          stripe_price_id: item.stripeId,
-          quantity: item.quantity,
-          name: item.title,
-          amount: getItemPrice(item),
-          currency: userCurrency,
-        })),
-        player_uuid: uuid,
-        username,
-        promo: localStorage.getItem(PROMO_STORAGE_KEY),
-        region: userRegion,
-      }),
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(payload),
+      referrerPolicy: "strict-origin-when-cross-origin",
     });
     if (!response.ok) throw new Error("Checkout failed");
     const session = await response.json();
-    if (session.session_url) window.location.assign(session.session_url);
-    else throw new Error(session.error || "Checkout session was not created");
+    if (!session || typeof session !== "object" || !isAllowedCheckoutUrl(session.session_url, shopConfig.checkoutAllowedHosts || [])) {
+      throw new Error("Checkout returned an invalid destination");
+    }
+    window.location.assign(session.session_url);
   } catch (error) {
     announce(`Checkout could not start. ${error.message}`);
     button.disabled = false;
-    button.textContent = "Proceed to Checkout";
+    button.textContent = text("checkout", "Proceed to Checkout");
   }
 }
 
@@ -626,7 +918,10 @@ function setupImageFallbacks() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
+function initializeShop() {
+  shopStrings = parseJsonScript("shop-i18n", {});
+  shopConfig = parseJsonScript("shop-config", shopConfig);
+  setupCurrency();
   setupOverlays();
   setupImageFallbacks();
   setupPlayerGate();
@@ -636,5 +931,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("cart-promo-btn")?.addEventListener("click", applyPromoToCart);
   document.getElementById("cart-checkout-btn")?.addEventListener("click", checkoutFromCart);
   updateCartUI();
-  await initRegionalPrices();
-});
+}
+
+if (typeof document !== "undefined") {
+  document.addEventListener("DOMContentLoaded", initializeShop);
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    MAX_PRODUCT_QUANTITY,
+    buildCheckoutPayload,
+    chooseInitialCurrency,
+    isAllowedCheckoutUrl,
+    normalizeCartItem,
+    normalizeProductId,
+    normalizeUuid,
+    validatePlayerLookupResponse,
+  };
+}

@@ -1,6 +1,7 @@
 GIT
-  remote: https://github.com/PWindows/Website-Common.git
-  revision: d35c2a52463b1ba89e511ccbbc55fc4617919532
+  remote: https://github.com/PWindows/website-common.git
+  revision: dcefd4051816760ed80103a182d5f3f3078a9c25
+  branch: main
   specs:
     pwindows-theme (1.0.0)
       jekyll (~> 4.4)

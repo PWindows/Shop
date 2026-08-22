@@ -1,4 +1,7 @@
 ---
+layout: null
+permalink: /assets/manifest.json
+sitemap: false
 ---
 {
   "name": "PWindows Shop",

@@ -4,50 +4,57 @@ title: PCoins Shop
 description: Browse PCoins bundles and support PWindows.
 permalink: /products/
 ---
+{% assign shop_strings = site.data.shop_translations[site.active_lang] | default: site.data.shop_translations[site.default_lang] %}
+{% assign shop_fallback = false %}
+{% unless site.data.shop_translations[site.active_lang] %}{% assign shop_fallback = true %}{% endunless %}
+{% assign product_fallback = false %}
+{% if site.active_lang != site.default_lang %}{% assign product_fallback = true %}{% endif %}
+{% include fallback-notice.html show=product_fallback %}
 
-<section class="shop-hero" aria-labelledby="shop-title">
+<section class="shop-hero" aria-labelledby="shop-title"{% if shop_fallback %} lang="{{ site.default_lang }}"{% endif %}>
   <div class="shop-hero-inner">
     <div class="shop-user-pill" id="shop-user-pill" hidden>
       <div class="shop-user-avatar" id="shop-user-avatar" aria-hidden="true"></div>
       <span id="shop-user-name"></span>
-      <button class="shop-user-switch" id="shop-user-switch" type="button">Switch player</button>
+      <button class="shop-user-switch" id="shop-user-switch" type="button">{{ shop_strings.switch_player }}</button>
     </div>
-    <h1 class="shop-title" id="shop-title">PCoins Shop</h1>
-    <p class="shop-sub">Buy PCoins and spend them in-game.</p>
+    <h1 class="shop-title" id="shop-title" tabindex="-1">{{ shop_strings.shop_title }}</h1>
+    <p class="shop-sub">{{ shop_strings.shop_sub }}</p>
 
     <div class="shop-controls">
-      <label class="sr-only" for="shop-search">Search bundles</label>
-      <input type="search" id="shop-search" class="shop-search" placeholder="Search bundles..." />
-      <div class="shop-cats" aria-label="Product categories">
-        <button class="cat-btn btn active" type="button" data-cat="all" aria-pressed="true">All</button>
-        <button class="cat-btn btn" type="button" data-cat="coins" aria-pressed="false">Coins</button>
-        <button class="cat-btn btn" type="button" data-cat="donate" aria-pressed="false">Support</button>
+      <label class="sr-only" for="shop-search">{{ shop_strings.search }}</label>
+      <input type="search" id="shop-search" class="shop-search" placeholder="{{ shop_strings.search_placeholder | escape }}" />
+      <div class="shop-cats" aria-label="{{ shop_strings.categories | escape }}">
+        <button class="cat-btn btn active" type="button" data-cat="all" aria-pressed="true">{{ shop_strings.all }}</button>
+        <button class="cat-btn btn" type="button" data-cat="coins" aria-pressed="false">{{ shop_strings.coins }}</button>
+        <button class="cat-btn btn" type="button" data-cat="donate" aria-pressed="false">{{ shop_strings.support }}</button>
       </div>
+      <label class="currency-label" for="currency-select">{{ shop_strings.currency }}</label>
+      <select class="currency-select" id="currency-select" data-currency-select><option value="USD">USD</option><option value="MYR">MYR</option><option value="CNY">CNY</option></select>
     </div>
   </div>
 </section>
 
 <div class="transition-section" aria-hidden="true" style="transform: rotate(180deg);"></div>
 
-<section class="shop-wrap" aria-label="Products">
+<section class="shop-wrap" aria-label="{{ shop_strings.products | escape }}"{% if shop_fallback %} lang="{{ site.default_lang }}"{% endif %}>
   <div class="product-grid" id="product-grid">
     {% assign products = site.products | sort: 'price_usd' %}
     {% for product in products %}
     {% if product.coins and product.category %}
-    <article class="grid-item" data-cat="{{ product.category }}" data-title="{{ product.title | downcase | escape }}" data-desc="{{ product.description | downcase | escape }}">
+    <article class="grid-item" lang="{{ site.default_lang }}" data-cat="{{ product.category }}" data-title="{{ product.title | downcase | escape }}" data-desc="{{ product.description | downcase | escape }}">
       <a href="{{ product.url | relative_url }}" class="product-card-link" aria-label="View {{ product.title | escape }}">
         <div class="product-card {% if product.featured %}product-card--featured{% endif %}"
-          data-product-id="{{ product.url }}"
+          data-product-id="{{ product.product_id }}"
           data-coins="{{ product.coins }}"
           data-title="{{ product.title | escape }}"
           data-image="{{ product.image }}"
-          data-stripe-id="{{ product.stripe_price_id }}"
           data-price-usd="{{ product.price_usd }}"
           data-price-myr="{{ product.price_myr }}"
           data-price-cny="{{ product.price_cny }}">
-          {% if product.featured %}<div class="product-badge">Most Popular</div>{% endif %}
+          {% if product.featured %}<div class="product-badge" lang="{{ site.active_lang }}">{{ shop_strings.most_popular }}</div>{% endif %}
           <div class="product-img-wrap">
-            <img src="{{ product.image | relative_url }}" alt="" loading="lazy" data-fallback-src="{{ '/assets/img/products/placeholder.png' | relative_url }}" />
+            <img src="{{ product.image | relative_url }}" alt="" loading="lazy" width="1408" height="702" data-fallback-src="{{ '/assets/img/products/placeholder.png' | relative_url }}" />
           </div>
           <div class="product-body">
             <p class="product-coins">{{ product.coins | number_with_delimiter }} PCoins</p>
@@ -59,26 +66,26 @@ permalink: /products/
           </div>
         </div>
       </a>
-      <button class="btn btn-green product-btn" type="button" data-add-product>Add to Cart</button>
+      <button class="btn btn-green product-btn" type="button" data-add-product lang="{{ site.active_lang }}">{{ shop_strings.add_to_cart }}</button>
     </article>
     {% endif %}
     {% endfor %}
 
     <article class="grid-item donate-wrap" data-cat="donate" data-title="donate support" data-desc="donate any amount support pwindows">
-      <div class="product-card donate-card" data-product-id="donate" data-coins="0" data-title="Support PWindows" data-image="{{ '/assets/PWindows.svg' | relative_url }}" data-stripe-id="donate" data-price-usd="1" data-price-myr="5" data-price-cny="10">
+      <div class="product-card donate-card" data-product-id="donate" data-coins="0" data-title="{{ shop_strings.support_title | escape }}" data-image="{{ '/assets/PWindows.svg' | relative_url }}" data-price-usd="1" data-price-myr="5" data-price-cny="10">
         <div class="product-img-wrap donate-heart" aria-hidden="true">♥</div>
         <div class="product-body">
-          <p class="product-coins">Any amount</p>
-          <h2 class="product-name">Support PWindows</h2>
-          <p class="product-desc">Love what we’re building? Help keep the servers alive.</p>
+          <p class="product-coins">{{ shop_strings.any_amount }}</p>
+          <h2 class="product-name">{{ shop_strings.support_title }}</h2>
+          <p class="product-desc">{{ shop_strings.support_description }}</p>
         </div>
         <div class="product-footer donate-footer">
-          <label class="sr-only" for="donate-amount">Donation amount</label>
+          <label class="sr-only" for="donate-amount">{{ shop_strings.donation_amount }}</label>
           <div class="donate-input-wrap"><span id="donate-currency">$</span><input type="number" id="donate-amount" min="1" step="1" placeholder="10" /></div>
         </div>
       </div>
-      <button class="btn btn-gold product-btn" id="donate-add-btn" type="button">Add Support to Cart</button>
+      <button class="btn btn-gold product-btn" id="donate-add-btn" type="button">{{ shop_strings.add_support }}</button>
     </article>
   </div>
-  <p class="empty-state" id="no-results" hidden>No products found.</p>
+  <p class="empty-state" id="no-results" hidden>{{ shop_strings.no_products }}</p>
 </section>

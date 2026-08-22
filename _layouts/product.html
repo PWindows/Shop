@@ -1,30 +1,35 @@
 ---
 layout: default
 ---
+{% assign shop_strings = site.data.shop_translations[site.active_lang] | default: site.data.shop_translations[site.default_lang] %}
+{% assign shop_fallback = false %}
+{% unless site.data.shop_translations[site.active_lang] %}{% assign shop_fallback = true %}{% endunless %}
+{% assign product_fallback = false %}
+{% if site.active_lang != site.default_lang %}{% assign product_fallback = true %}{% endif %}
+{% include fallback-notice.html show=product_fallback %}
 
-<section class="product-page-wrap" aria-labelledby="product-title">
-  <a href="{{ '/products' | relative_url }}" class="back-link">Back to Shop</a>
+<section class="product-page-wrap" aria-labelledby="product-title"{% if shop_fallback %} lang="{{ site.default_lang }}"{% endif %}>
+  <a href="{{ '/products' | relative_url }}" class="back-link">{{ shop_strings.back_to_shop }}</a>
 
   <div class="product-page"
     id="product-page-data"
-    data-product-id="{{ page.url }}"
+    data-product-id="{{ page.product_id }}"
     data-coins="{{ page.coins }}"
     data-title="{{ page.title | escape }}"
     data-image="{{ page.image }}"
-    data-stripe-id="{{ page.stripe_price_id }}"
     data-price-usd="{{ page.price_usd }}"
     data-price-myr="{{ page.price_myr }}"
     data-price-cny="{{ page.price_cny }}">
     <div class="product-page-left">
       <div class="product-page-img-wrap">
-        <img src="{{ page.image | relative_url }}" alt="{{ page.title | escape }}" data-fallback-src="{{ '/assets/img/products/placeholder.png' | relative_url }}" />
+        <img src="{{ page.image | relative_url }}" alt="{{ page.title | escape }}" width="1408" height="702" data-fallback-src="{{ '/assets/img/products/placeholder.png' | relative_url }}" />
       </div>
     </div>
 
     <div class="product-page-right">
       <h1 class="product-page-title" id="product-title">{{ page.title }}</h1>
       {% if page.coins %}<p class="product-page-coins">{{ page.coins | number_with_delimiter }} PCoins</p>{% endif %}
-      <p class="product-page-desc">{{ page.description }}</p>
+      <p class="product-page-desc" lang="{{ site.default_lang }}">{{ page.description }}</p>
       {% assign product_content = content | strip %}
       {% if product_content != '' %}<div class="product-page-content">{{ content }}</div>{% endif %}
 
@@ -34,16 +39,18 @@ layout: default
           <span class="price-value js-regional-price" id="product-page-price" data-price-usd="{{ page.price_usd }}" data-price-myr="{{ page.price_myr }}" data-price-cny="{{ page.price_cny }}">${{ page.price_usd }}</span>
         </div>
       </div>
+      <label class="currency-label" for="currency-select">{{ shop_strings.currency }}</label>
+      <select class="currency-select" id="currency-select" data-currency-select><option value="USD">USD</option><option value="MYR">MYR</option><option value="CNY">CNY</option></select>
 
       <div class="promo-row">
-        <label class="sr-only" for="promo-input">Promo code</label>
-        <input type="text" id="promo-input" class="promo-input" placeholder="Promo code (optional)" />
-        <button class="btn promo-btn" id="promo-btn" type="button">Apply</button>
+        <label class="sr-only" for="promo-input">{{ shop_strings.promo_code }}</label>
+        <input type="text" id="promo-input" class="promo-input" placeholder="{{ shop_strings.promo_placeholder | escape }}" />
+        <button class="btn promo-btn" id="promo-btn" type="button">{{ shop_strings.apply }}</button>
       </div>
       <p class="promo-msg" id="promo-msg" aria-live="polite"></p>
 
-      <button class="btn btn-green buy-btn" id="buy-btn" type="button">Add to Cart — <span id="buy-price">${{ page.price_usd }}</span></button>
-      <p class="buy-note">Added items will appear in your shopping cart.</p>
+      <button class="btn btn-green buy-btn" id="buy-btn" type="button">{{ shop_strings.add_to_cart }} — <span id="buy-price">${{ page.price_usd }}</span></button>
+      <p class="buy-note">{{ shop_strings.added_note }}</p>
     </div>
   </div>
 </section>
