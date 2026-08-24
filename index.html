@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Home
+id: shop-home
 description: Look up your Minecraft player to browse PCoins and support PWindows; checkout revalidates player identity.
 permalink: /
 ---
@@ -10,36 +11,38 @@ permalink: /
 {% include fallback-notice.html show=shop_fallback %}
 
 <section class="gate-wrap" aria-labelledby="gate-title"{% if shop_fallback %} lang="{{ site.default_lang }}"{% endif %}>
-  <div class="gate-card" id="gate-main">
+  <div class="gate-card">
     <img class="gate-logo" src="{{ '/assets/PWindows.svg' | relative_url }}" alt="PWindows" width="1452" height="64" />
-    <h1 class="gate-title" id="gate-title">{{ shop_strings.lookup_title_prefix }} <span>{{ shop_strings.lookup_title_shop }}</span></h1>
-    <p class="gate-sub">{{ shop_strings.lookup_sub }}</p>
+    <h1 class="gate-title" id="gate-title" tabindex="-1">{{ shop_strings.lookup_title_prefix }} <span>{{ shop_strings.lookup_title_shop }}</span></h1>
+    <div id="gate-main">
+      <p class="gate-sub">{{ shop_strings.lookup_sub }}</p>
 
-    <form class="gate-form" id="gate-form" novalidate>
-      <label for="gate-username">{{ shop_strings.username }}</label>
-      <div class="gate-input-row">
-        <input type="text" id="gate-username" class="gate-input" placeholder="{{ shop_strings.username_placeholder | escape }}" autocomplete="username" minlength="3" maxlength="16" required />
-        <button class="btn btn-green gate-btn" id="gate-enter-btn" type="submit">{{ shop_strings.enter_shop }}</button>
+      <form class="gate-form" id="gate-form" novalidate>
+        <label for="gate-username">{{ shop_strings.username }}</label>
+        <div class="gate-input-row">
+          <input type="text" id="gate-username" class="gate-input" placeholder="{{ shop_strings.username_placeholder | escape }}" autocomplete="username" minlength="3" maxlength="16" required />
+          <button class="btn btn-green gate-btn" id="gate-enter-btn" type="submit">{{ shop_strings.enter_shop }}</button>
+        </div>
+      </form>
+      <p class="gate-error" id="gate-error" role="alert"></p>
+      <p class="gate-hint" id="gate-hint"></p>
+
+      <div class="gate-divider"><span>{{ shop_strings.coming_soon }}</span></div>
+      <div class="gate-alt-row" aria-label="{{ shop_strings.future_sections | escape }}">
+        <button class="btn gate-alt-btn" type="button" disabled>{{ shop_strings.merch_coming_soon }}</button>
+        <button class="btn btn-gold gate-alt-btn" type="button" disabled>{{ shop_strings.donate_coming_soon }}</button>
       </div>
-    </form>
-    <p class="gate-error" id="gate-error" role="alert"></p>
-    <p class="gate-hint" id="gate-hint"></p>
-
-    <div class="gate-divider"><span>Coming soon</span></div>
-    <div class="gate-alt-row" aria-label="Future shop sections">
-      <button class="btn gate-alt-btn" type="button" disabled>Merch — Coming Soon</button>
-      <button class="btn btn-gold gate-alt-btn" type="button" disabled>Donate — Coming Soon</button>
     </div>
-  </div>
 
-  <div class="gate-card gate-success" id="gate-success" hidden>
-    <div class="gate-avatar" id="gate-avatar" aria-hidden="true"></div>
-    <h2 class="gate-welcome" id="gate-welcome" tabindex="-1">{{ shop_strings.welcome }}</h2>
-    <p class="gate-sub">{{ shop_strings.ready }}</p>
-    <div class="gate-success-btns">
-      <a href="{{ '/products' | relative_url }}" class="btn btn-green gate-btn gate-btn--full" id="gate-shop-link">{{ shop_strings.browse }}</a>
-      <button class="btn gate-alt-btn" type="button" disabled>Merch — Coming Soon</button>
-      <button class="btn btn-gold gate-alt-btn" type="button" disabled>Donate — Coming Soon</button>
+    <div class="gate-success" id="gate-success" hidden>
+      <div class="gate-avatar" id="gate-avatar" aria-hidden="true"></div>
+      <p class="gate-welcome" id="gate-welcome">{{ shop_strings.welcome }}</p>
+      <p class="gate-sub">{{ shop_strings.ready }}</p>
+      <div class="gate-success-btns">
+        <a href="{{ '/products' | relative_url }}" class="btn btn-green gate-btn gate-btn--full" id="gate-shop-link">{{ shop_strings.browse }}</a>
+        <button class="btn gate-alt-btn" type="button" disabled>{{ shop_strings.merch_coming_soon }}</button>
+        <button class="btn btn-gold gate-alt-btn" type="button" disabled>{{ shop_strings.donate_coming_soon }}</button>
+      </div>
     </div>
   </div>
 </section>

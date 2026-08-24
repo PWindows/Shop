@@ -3,6 +3,7 @@ const LEGACY_CART_STORAGE_KEY = "pwindows_cart";
 const PROMO_STORAGE_KEY = "pwindows_promo";
 const PLAYER_STORAGE_KEY = "pwindows_player_lookup_v2";
 const CURRENCY_STORAGE_KEY = "pwindows_currency";
+const DEV_BYPASS_STORAGE_KEY = "pwindows_dev_browse_bypass";
 const MAX_PRODUCT_QUANTITY = 99;
 const SUPPORTED_CURRENCIES = new Set(["USD", "MYR", "CNY"]);
 const PLAYER_NAME_PATTERN = /^[a-zA-Z0-9_]{3,16}$/;
@@ -12,6 +13,7 @@ let userCurrency = "USD";
 let cartController;
 let shopStrings = {};
 let shopConfig = { checkoutEndpoint: "", checkoutAllowedHosts: [] };
+let developmentBypass = false;
 
 function parseJsonScript(id, fallback = {}) {
   const node = document.getElementById(id);
@@ -26,6 +28,13 @@ function parseJsonScript(id, fallback = {}) {
 
 function text(key, fallback) {
   return typeof shopStrings[key] === "string" ? shopStrings[key] : fallback;
+}
+
+function formatText(key, fallback, values = {}) {
+  return Object.entries(values).reduce(
+    (message, [name, value]) => message.replaceAll(`{${name}}`, String(value)),
+    text(key, fallback),
+  );
 }
 
 function announce(message) {
@@ -59,6 +68,32 @@ function safeStorageRemove(storage, key) {
     storage.removeItem(key);
   } catch (_) {
     // Storage can be unavailable in privacy modes; in-memory state still works.
+  }
+}
+
+function isLocalDevelopmentHost(hostname) {
+  return ["localhost", "127.0.0.1", "::1", "[::1]"].includes(String(hostname).toLowerCase());
+}
+
+function configureDevelopmentBypass({ hostname, search = "", storage }) {
+  if (!isLocalDevelopmentHost(hostname)) return false;
+  const value = new URLSearchParams(search).get("dev-bypass");
+  if (value === "1") safeStorageSet(storage, DEV_BYPASS_STORAGE_KEY, "1");
+  if (value === "0") safeStorageRemove(storage, DEV_BYPASS_STORAGE_KEY);
+  return safeStorageGet(storage, DEV_BYPASS_STORAGE_KEY) === "1";
+}
+
+function safeShopRedirect(value, origin, allowedLanguages = []) {
+  if (typeof value !== "string" || typeof origin !== "string") return null;
+  try {
+    const url = new URL(value, origin);
+    if (url.origin !== origin || url.username || url.password) return null;
+    const match = url.pathname.match(/^\/(?:([a-z]{2}-[a-z]{2})\/)?products(?:\/(?:[a-z0-9][a-z0-9-]{0,63})?)?$/i);
+    if (!match) return null;
+    if (match[1] && !allowedLanguages.map((language) => String(language).toLowerCase()).includes(match[1].toLowerCase())) return null;
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch (_) {
+    return null;
   }
 }
 
@@ -424,7 +459,7 @@ function addProduct(product, feedbackButton) {
     cart.push(normalized);
   }
   saveCart(cart);
-  announce(`${normalized.title} added to cart.`);
+  announce(formatText("item_added", "{title} added to cart.", { title: normalized.title }));
 
   if (feedbackButton) {
     const original = feedbackButton.textContent;
@@ -444,7 +479,7 @@ function removeCartItem(cartId) {
   const next = cart.filter((entry) => entry.cartId !== cartId);
   const fallback = next[Math.min(index, Math.max(0, next.length - 1))];
   saveCart(next, fallback ? { cartId: fallback.cartId, action: "remove" } : { heading: true });
-  announce(`${item?.title || "Item"} removed from cart.`);
+  announce(formatText("item_removed", "{title} removed from cart.", { title: item?.title || "Item" }));
 }
 
 function changeCartQuantity(cartId, change) {
@@ -495,12 +530,12 @@ function createCartItem(item) {
     decrease.textContent = "−";
     decrease.dataset.cartAction = "decrease";
     decrease.dataset.cartId = item.cartId;
-    decrease.setAttribute("aria-label", `Decrease ${item.title} quantity`);
+    decrease.setAttribute("aria-label", formatText("decrease_quantity", "Decrease {title} quantity", { title: item.title }));
     decrease.addEventListener("click", () => changeCartQuantity(item.cartId, -1));
     const quantity = document.createElement("span");
     quantity.className = "qty-display";
     quantity.textContent = item.quantity;
-    quantity.setAttribute("aria-label", `Quantity ${item.quantity}`);
+    quantity.setAttribute("aria-label", formatText("quantity_label", "Quantity {quantity}", { quantity: item.quantity }));
     const increase = document.createElement("button");
     increase.className = "qty-btn btn";
     increase.type = "button";
@@ -508,7 +543,7 @@ function createCartItem(item) {
     increase.disabled = item.quantity >= MAX_PRODUCT_QUANTITY;
     increase.dataset.cartAction = "increase";
     increase.dataset.cartId = item.cartId;
-    increase.setAttribute("aria-label", `Increase ${item.title} quantity`);
+    increase.setAttribute("aria-label", formatText("increase_quantity", "Increase {title} quantity", { title: item.title }));
     increase.addEventListener("click", () => changeCartQuantity(item.cartId, 1));
     controls.append(decrease, quantity, increase);
   }
@@ -736,17 +771,18 @@ function setupPlayerGate() {
   const button = document.getElementById("gate-enter-btn");
   const error = document.getElementById("gate-error");
   const hint = document.getElementById("gate-hint");
+  const heading = document.getElementById("gate-title");
 
   function showLookup(player, moveFocus = false) {
     main.hidden = true;
     success.hidden = false;
-    const welcome = document.getElementById("gate-welcome");
-    welcome.textContent = `${player.username}`;
+    heading.textContent = player.username;
     document.getElementById("gate-avatar").style.backgroundImage = `url("https://crafatar.com/avatars/${encodeURIComponent(player.uuid)}?size=96&overlay")`;
     const redirect = new URLSearchParams(window.location.search).get("redirect");
     const link = document.getElementById("gate-shop-link");
-    if (link && redirect?.startsWith("/") && !redirect.startsWith("//")) link.href = redirect;
-    if (moveFocus) window.requestAnimationFrame(() => welcome.focus());
+    const safeRedirect = safeShopRedirect(redirect, window.location.origin, shopConfig.languages || []);
+    if (link && safeRedirect) link.href = safeRedirect;
+    if (moveFocus) window.requestAnimationFrame(() => heading.focus());
   }
 
   clearLegacyPlayerState();
@@ -783,7 +819,7 @@ function setupPlayerGate() {
       }
       savePlayerLookup(player);
       showLookup(player, true);
-      announce(`${player.username}. Player lookup complete; checkout will revalidate this player.`);
+      announce(`${player.username}. ${text("lookup_complete", "Player lookup complete. Checkout will revalidate this player.")}`);
     } catch (_) {
       error.textContent = text("lookup_error", "Player lookup is unavailable. Please try again.");
     } finally {
@@ -799,16 +835,22 @@ function localizedRoot() {
   return lang && lang !== "en-us" ? `/${lang}/` : "/";
 }
 
-function setupPlayerSession() {
+function localizedProductsPath() {
+  return `${localizedRoot()}products`;
+}
+
+function setupPlayerSession({ player: providedPlayer, bypass = developmentBypass, location = window.location } = {}) {
   const pill = document.getElementById("shop-user-pill");
   const productPage = document.getElementById("product-page-data");
-  if (!pill && !productPage) return;
+  if (!pill && !productPage) return "unused";
 
-  const player = getPlayerLookup();
+  const player = providedPlayer === undefined ? getPlayerLookup() : providedPlayer;
   if (!player) {
-    const redirect = encodeURIComponent(window.location.pathname + window.location.search);
-    window.location.replace(`${localizedRoot()}?redirect=${redirect}`);
-    return;
+    if (pill) pill.hidden = true;
+    if (bypass) return "bypass";
+    const redirect = encodeURIComponent(location.pathname + location.search);
+    location.replace(`${localizedRoot()}?redirect=${redirect}`);
+    return "redirect";
   }
 
   if (pill) {
@@ -820,6 +862,7 @@ function setupPlayerSession() {
       window.location.assign(localizedRoot());
     });
   }
+  return "player";
 }
 
 function applyPromoToCart() {
@@ -837,18 +880,27 @@ function applyPromoToCart() {
 }
 
 function buildCheckoutPayload(cart, player, requestedCurrency, promoCode) {
+  const validatedPlayer = validatePlayerLookupResponse({
+    exists: true,
+    username: player?.username,
+    uuid: player?.uuid,
+    lookup_token: player?.lookupToken,
+  });
+  if (!validatedPlayer?.exists) throw new TypeError("A validated player lookup is required");
+  if (!SUPPORTED_CURRENCIES.has(requestedCurrency)) throw new TypeError("Unsupported checkout currency");
+  const normalizedCart = Array.isArray(cart) ? cart.map(normalizeCartItem).filter(Boolean) : [];
   return {
     requested_currency: requestedCurrency,
     player: {
-      username: player.username,
-      uuid: player.uuid,
-      ...(player.lookupToken ? { lookup_token: player.lookupToken } : {}),
+      username: validatedPlayer.username,
+      uuid: validatedPlayer.uuid,
+      ...(validatedPlayer.lookupToken ? { lookup_token: validatedPlayer.lookupToken } : {}),
     },
-    items: cart.filter((item) => !item.isDonation).map((item) => ({
+    items: normalizedCart.filter((item) => !item.isDonation).map((item) => ({
       product_id: item.productId,
       quantity: Math.min(MAX_PRODUCT_QUANTITY, Math.max(1, item.quantity)),
     })),
-    donations: cart.filter((item) => item.isDonation).map((item) => ({
+    donations: normalizedCart.filter((item) => item.isDonation).map((item) => ({
       amount_minor: item.donationAmountMinor,
       currency: item.donationCurrency,
     })),
@@ -860,7 +912,7 @@ function isAllowedCheckoutUrl(value, allowedHosts) {
   if (typeof value !== "string") return false;
   try {
     const url = new URL(value);
-    return url.protocol === "https:" && allowedHosts.includes(url.hostname);
+    return url.protocol === "https:" && !url.username && !url.password && !url.port && allowedHosts.includes(url.hostname);
   } catch (_) {
     return false;
   }
@@ -870,7 +922,8 @@ async function checkoutFromCart() {
   const cart = getCart();
   const player = getPlayerLookup();
   if (!player) {
-    window.location.assign(`${localizedRoot()}?redirect=${encodeURIComponent("/products")}`);
+    announce(text("checkout_requires_player", "Complete a player lookup before checkout."));
+    window.location.assign(`${localizedRoot()}?redirect=${encodeURIComponent(localizedProductsPath())}`);
     return;
   }
   if (!cart.length) {
@@ -904,7 +957,8 @@ async function checkoutFromCart() {
     }
     window.location.assign(session.session_url);
   } catch (error) {
-    announce(`Checkout could not start. ${error.message}`);
+    console.error("Checkout could not start", error);
+    announce(text("checkout_error", "Checkout could not start."));
     button.disabled = false;
     button.textContent = text("checkout", "Proceed to Checkout");
   }
@@ -921,6 +975,13 @@ function setupImageFallbacks() {
 function initializeShop() {
   shopStrings = parseJsonScript("shop-i18n", {});
   shopConfig = parseJsonScript("shop-config", shopConfig);
+  developmentBypass = configureDevelopmentBypass({
+    hostname: window.location.hostname,
+    search: window.location.search,
+    storage: sessionStorage,
+  });
+  const developmentNotice = document.getElementById("development-notice");
+  if (developmentNotice) developmentNotice.hidden = !developmentBypass;
   setupCurrency();
   setupOverlays();
   setupImageFallbacks();
@@ -942,10 +1003,15 @@ if (typeof module !== "undefined" && module.exports) {
     MAX_PRODUCT_QUANTITY,
     buildCheckoutPayload,
     chooseInitialCurrency,
+    configureDevelopmentBypass,
+    initializeShop,
     isAllowedCheckoutUrl,
+    isLocalDevelopmentHost,
     normalizeCartItem,
     normalizeProductId,
     normalizeUuid,
+    safeShopRedirect,
+    setupPlayerSession,
     validatePlayerLookupResponse,
   };
 }

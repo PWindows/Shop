@@ -1,0 +1,35 @@
+en-us:
+  name: PWindows Shop
+  tagline: Official PCoins storefront for PWindows
+  page_titles:
+    shop-home: Player lookup
+    shop-products: PCoins Shop
+    shop-not-found: Shop page not found
+  descriptions:
+    shop-home: Look up your Minecraft player to browse PCoins and support PWindows; checkout revalidates player identity.
+    shop-products: Browse PCoins bundles and support PWindows.
+    shop-not-found: The requested PWindows Shop page could not be found.
+
+zh-cn:
+  name: PWindows 商店
+  tagline: PWindows 官方 PCoins 商店
+  page_titles:
+    shop-home: 玩家查询
+    shop-products: PCoins 商店
+    shop-not-found: 找不到商店页面
+  descriptions:
+    shop-home: 查询你的 Minecraft 玩家资料以浏览 PCoins 并支持 PWindows；结账时会重新验证玩家身份。
+    shop-products: 浏览 PCoins 组合并支持 PWindows。
+    shop-not-found: 找不到请求的 PWindows 商店页面。
+
+ja-jp:
+  name: PWindowsショップ
+  tagline: PWindows公式PCoinsストア
+  page_titles:
+    shop-home: プレイヤー検索
+    shop-products: PCoinsショップ
+    shop-not-found: ショップページが見つかりません
+  descriptions:
+    shop-home: Minecraftプレイヤーを検索してPCoinsを閲覧し、PWindowsを支援できます。購入時にプレイヤーを再確認します。
+    shop-products: PCoinsバンドルを閲覧してPWindowsを支援できます。
+    shop-not-found: お探しのPWindowsショップページは見つかりませんでした。

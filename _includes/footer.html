@@ -1,5 +1,6 @@
 {% assign footer_strings = site.data.translations[site.active_lang].site.footer %}
 {% assign ui = site.data.ui[site.active_lang] | default: site.data.ui[site.default_lang] %}
+{% assign shop_strings = site.data.shop_translations[site.active_lang] | default: site.data.shop_translations[site.default_lang] %}
 {% assign main_site_url = site.data.site.main_url %}
 {% if site.active_lang != site.default_lang %}
   {% capture main_site_url %}{{ site.data.site.main_url }}/{{ site.active_lang }}{% endcapture %}
@@ -10,7 +11,7 @@
     <h2 class="sr-only" id="footer-navigation-heading">{{ ui.footer_navigation }}</h2>
 
     <div class="footer-column footer-column-left">
-      <a href="{{ main_site_url }}" class="footer-logo" aria-label="PWindows main website">
+      <a href="{{ main_site_url }}" class="footer-logo" aria-label="{{ shop_strings.main_website | escape }}">
         {% if site.active_lang == 'zh-cn' %}
           <img src="{{ '/assets/PWindows-Chinese.svg' | relative_url }}" alt="派视界" width="991" height="326" />
         {% else %}

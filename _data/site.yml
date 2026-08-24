@@ -1,5 +1,6 @@
 main_url: https://www.pwindows.qzz.io
 checkout_endpoint: https://your-worker.example.com/create-checkout
+checkout_ready: false
 checkout_allowed_hosts:
   - checkout.stripe.com
 
@@ -35,8 +36,8 @@ footer_sections:
     column_class: footer-column-center
     path: /games
     links:
-      - translation_key: sacred-cubes
-        path: /games/sacred-cubes
+      - translation_key: sacred-remains
+        path: /games/sacred-remains
       - translation_key: obby-of-dominance
         path: /games/obby-of-dominance
   - translation_key: departments

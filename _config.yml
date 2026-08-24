@@ -48,6 +48,7 @@ exclude:
   - README.md
   - vendor/
   - tools/
+  - tests/
   - assets/extra/
 collections:
   products:

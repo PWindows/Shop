@@ -1,6 +1,7 @@
 ---
 layout: default
 title: PCoins Shop
+id: shop-products
 description: Browse PCoins bundles and support PWindows.
 permalink: /products/
 ---
@@ -43,7 +44,7 @@ permalink: /products/
     {% for product in products %}
     {% if product.coins and product.category %}
     <article class="grid-item" lang="{{ site.default_lang }}" data-cat="{{ product.category }}" data-title="{{ product.title | downcase | escape }}" data-desc="{{ product.description | downcase | escape }}">
-      <a href="{{ product.url | relative_url }}" class="product-card-link" aria-label="View {{ product.title | escape }}">
+      <a href="{{ product.url | relative_url }}" class="product-card-link" aria-label="{{ shop_strings.view_product | escape }} {{ product.title | escape }}">
         <div class="product-card {% if product.featured %}product-card--featured{% endif %}"
           data-product-id="{{ product.product_id }}"
           data-coins="{{ product.coins }}"
