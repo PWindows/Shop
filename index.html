@@ -11,7 +11,11 @@ permalink: /
 
 <section class="gate-wrap" aria-labelledby="gate-title"{% if shop_fallback %} lang="{{ site.default_lang }}"{% endif %}>
   <div class="gate-card" id="gate-main">
-    <img class="gate-logo" src="{{ '/assets/PWindows.svg' | relative_url }}" alt="PWindows" width="1452" height="64" />
+    {% if site.active_lang == 'zh-cn' %}
+      <img class="gate-logo" src="{{ '/assets/PWindows-Chinese.svg' | relative_url }}" alt="PWindows" width="1452" height="64" />
+    {% else %}
+      <img class="gate-logo" src="{{ '/assets/PWindows.svg' | relative_url }}" alt="PWindows" width="1452" height="64" />
+    {% endif %}
     <h1 class="gate-title" id="gate-title">{{ shop_strings.lookup_title_prefix }} <span>{{ shop_strings.lookup_title_shop }}</span></h1>
     <p class="gate-sub">{{ shop_strings.lookup_sub }}</p>
 
