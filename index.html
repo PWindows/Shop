@@ -11,11 +11,14 @@ permalink: /
 {% include fallback-notice.html show=shop_fallback %}
 
 <section class="gate-wrap" aria-labelledby="gate-title"{% if shop_fallback %} lang="{{ site.default_lang }}"{% endif %}>
-  <div class="gate-card">
-    <img class="gate-logo" src="{{ '/assets/PWindows.svg' | relative_url }}" alt="PWindows" width="1452" height="64" />
-    <h1 class="gate-title" id="gate-title" tabindex="-1">{{ shop_strings.lookup_title_prefix }} <span>{{ shop_strings.lookup_title_shop }}</span></h1>
-    <div id="gate-main">
-      <p class="gate-sub">{{ shop_strings.lookup_sub }}</p>
+  <div class="gate-card" id="gate-main">
+    {% if site.active_lang == 'zh-cn' %}
+      <img class="gate-logo" src="{{ '/assets/PWindows-Chinese.svg' | relative_url }}" alt="PWindows" width="1452" height="64" />
+    {% else %}
+      <img class="gate-logo" src="{{ '/assets/PWindows.svg' | relative_url }}" alt="PWindows" width="1452" height="64" />
+    {% endif %}
+    <h1 class="gate-title" id="gate-title">{{ shop_strings.lookup_title_prefix }} <span>{{ shop_strings.lookup_title_shop }}</span></h1>
+    <p class="gate-sub">{{ shop_strings.lookup_sub }}</p>
 
       <form class="gate-form" id="gate-form" novalidate>
         <label for="gate-username">{{ shop_strings.username }}</label>
