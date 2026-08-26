@@ -1,0 +1,73 @@
+{% assign footer_strings = site.data.translations[site.active_lang].site.footer %}
+{% assign ui = site.data.ui[site.active_lang] | default: site.data.ui[site.default_lang] %}
+{% assign shop_strings = site.data.shop_translations[site.active_lang] | default: site.data.shop_translations[site.default_lang] %}
+{% assign main_site_url = site.data.site.main_url %}
+{% if site.active_lang != site.default_lang %}
+  {% capture main_site_url %}{{ site.data.site.main_url }}/{{ site.active_lang }}{% endcapture %}
+{% endif %}
+
+<footer class="footer">
+  <nav class="footer-container" aria-labelledby="footer-navigation-heading">
+    <h2 class="sr-only" id="footer-navigation-heading">{{ ui.footer_navigation }}</h2>
+
+    <div class="footer-column footer-column-left">
+      <a href="{{ main_site_url }}" class="footer-logo" aria-label="{{ shop_strings.main_website | escape }}">
+        {% if site.active_lang == 'zh-cn' %}
+          <img src="{{ '/assets/PWindows-Chinese.svg' | relative_url }}" alt="派视界" width="991" height="326" />
+        {% else %}
+          <img src="{{ '/assets/PWindows.svg' | relative_url }}" alt="PWindows" width="1452" height="262" />
+        {% endif %}
+      </a>
+      <p class="footer-copy">&copy; {{ site.time | date: '%Y' }} {{ footer_strings.copy }}</p>
+      <p class="footer-disclaimer">{{ footer_strings.disclaimer }}</p>
+      <p class="footer-rules"><a href="{{ main_site_url }}/about">{{ footer_strings.about }}</a></p>
+      <p class="footer-rules"><a href="{{ main_site_url }}/rules">{{ footer_strings.rules }}</a></p>
+    </div>
+
+    {% for section in site.data.site.footer_sections %}
+      <div class="footer-column {{ section.column_class }}">
+        {% if section.show_shop %}
+          <h3 class="footer-heading">
+            <a href="{{ '/products' | relative_url }}">{{ footer_strings.shop }}</a>
+          </h3>
+        {% endif %}
+        <h3 class="footer-heading">
+          {% if section.link_key %}
+            <a href="{{ site.data.site.links[section.link_key] | escape }}">{{ footer_strings[section.translation_key] }}</a>
+          {% elsif section.url %}
+            <a href="{{ section.url | escape }}">{{ footer_strings[section.translation_key] }}</a>
+          {% else %}
+            <a href="{{ main_site_url }}{{ section.path }}">{{ footer_strings[section.translation_key] }}</a>
+          {% endif %}
+        </h3>
+        <ul class="footer-links">
+          {% for item in section.links %}
+            <li>
+              {% if item.url %}
+                <a href="{{ item.url | escape }}">{{ footer_strings[item.translation_key] }}</a>
+              {% else %}
+                <a href="{{ main_site_url }}{{ item.path }}">{{ footer_strings[item.translation_key] }}</a>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+        {% if section.show_language %}
+          <div class="language-switcher">
+            <label class="sr-only" for="language-select">{{ footer_strings.language }}</label>
+            <select class="language-select" id="language-select" data-language-select>
+              {% for lang in site.languages %}
+                {% assign language_path = page.permalink_lang[lang] | default: page.permalink | default: page.url %}
+                {% capture language_url %}{{ site.baseurl }}{% unless lang == site.default_lang %}/{{ lang }}{% endunless %}{{ language_path }}{% endcapture %}
+                <option
+                  value="{{ language_url | escape }}"
+                  lang="{{ lang }}"
+                  {% if lang == site.active_lang %}selected{% endif %}
+                >{{ site.data.languages[lang].label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </nav>
+</footer>

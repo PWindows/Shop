@@ -1,0 +1,29 @@
+name: Site checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          ruby-version: "3.4.10"
+      - name: Check JavaScript
+        run: |
+          node --check assets/js/extra.js
+          node tests/shop-js-test.js
+      - name: Build site
+        run: bundle exec jekyll build
+      - name: Check generated HTML and internal links
+        run: bundle exec htmlproofer ./_site --disable-external
+      - name: Verify Shop output and source invariants
+        run: bundle exec ruby tools/verify-site.rb ./_site

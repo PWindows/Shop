@@ -1,0 +1,74 @@
+main_url: https://www.pwindows.qzz.io
+checkout_endpoint: https://your-worker.example.com/create-checkout
+checkout_ready: false
+checkout_allowed_hosts:
+  - checkout.stripe.com
+
+navigation:
+  - translation_key: about
+    path: /about
+    icon: /assets/mojang/svg/icons/book.png
+    icon_width: 160
+    icon_height: 160
+  - translation_key: news
+    path: /articles
+    icon: /assets/mojang/Invicon_Map.png
+    icon_width: 16
+    icon_height: 16
+  - translation_key: staff
+    path: /staff
+    icon: /assets/mojang/svg/icons/color-two-players.svg
+    icon_width: 32
+    icon_height: 32
+  - translation_key: departments
+    path: /departments/
+    icon: /assets/mojang/svg/icons/color-chest.svg
+    icon_width: 32
+    icon_height: 32
+  - translation_key: games
+    path: /games
+    icon: /assets/icons/controller.png
+    icon_width: 22
+    icon_height: 20
+
+footer_sections:
+  - translation_key: games
+    column_class: footer-column-center
+    path: /games
+    links:
+      - translation_key: sacred-remains
+        path: /games/sacred-remains
+      - translation_key: obby-of-dominance
+        path: /games/obby-of-dominance
+  - translation_key: departments
+    column_class: footer-column-departments
+    show_language: true
+    path: /departments/
+    links:
+      - translation_key: mcd
+        path: /departments/minecraft
+      - translation_key: rd
+        path: /departments/roblox
+      - translation_key: ud
+        path: /departments/unity
+  - translation_key: support
+    column_class: footer-column-right
+    show_shop: true
+    link_key: support
+    links:
+      - translation_key: feedback
+        path: /feedback
+      - translation_key: sitemap
+        path: /sitemap
+      - translation_key: contact
+        path: /contact
+      - translation_key: staff
+        path: /staff
+
+links:
+  support: https://discord.pwindows.qzz.io/
+  shop: https://shop.pwindows.qzz.io
+  discord: https://discord.pwindows.qzz.io/
+  youtube: https://www.youtube.com/@PWindows
+  twitter: https://x.com/pwindowsz
+  site_logo: /assets/PWindows.png

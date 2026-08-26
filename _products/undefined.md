@@ -8,4 +8,5 @@ stripe_price_id: price_PLACEHOLDER
 description: The ultimate bundle. The highest tier for the most dedicated PWindows player. You should have enough PCoins to buy everything you want after this.
 image: /assets/img/products/10000.png
 featured: false
+robots: noindex,follow
 ---

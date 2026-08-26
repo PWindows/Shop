@@ -1,7 +1,59 @@
 title: PWindows Shop
-description: Official Store of PWindows
+description: Buy PCoins and support the PWindows community.
 url: "https://shop.pwindows.qzz.io"
+theme: pwindows-theme
+markdown: kramdown
+default_lang: "en-us"
+languages:
+  [
+    "en-us",
+    "en-gb",
+    "zh-cn",
+    "es-es",
+    "fr-fr",
+    "de-de",
+    "it-it",
+    "pt-pt",
+    "pt-br",
+    "ja-jp",
+    "ko-kr",
+    "ru-ru",
+    "nl-nl",
+    "pl-pl",
+    "sv-se",
+    "da-dk",
+    "no-no",
+    "fi-fi",
+    "es-mx",
+    "fr-ca",
+    "tr-tr",
+    "ar-sa",
+    "he-il",
+    "hi-in",
+    "th-th",
+    "vi-vn",
+    "id-id",
+    "ms-my",
+  ]
+lang_from_path: true
+parallel_localization: false
+exclude_from_localization:
+  - assets
+  - sitemap.xml
+  - robots.txt
+  - CNAME
+kramdown:
+  input: GFM
+exclude:
+  - README.md
+  - vendor/
+  - tools/
+  - tests/
+  - assets/extra/
 collections:
   products:
     output: true
     permalink: /products/:name
+plugins:
+  - jekyll-polyglot
+  - pwindows-theme

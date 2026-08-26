@@ -1,73 +1,88 @@
-<!-- Floating particles -->
-<div class="particles" id="particles"></div>
+{% assign header_strings = site.data.translations[site.active_lang].site.header %}
+{% assign ui = site.data.ui[site.active_lang] | default: site.data.ui[site.default_lang] %}
+{% assign shop_strings = site.data.shop_translations[site.active_lang] | default: site.data.shop_translations[site.default_lang] %}
+{% assign main_site_url = site.data.site.main_url %}
+{% if site.active_lang != site.default_lang %}
+  {% capture main_site_url %}{{ site.data.site.main_url }}/{{ site.active_lang }}{% endcapture %}
+{% endif %}
 
-<!-- Mobile Menu Overlay -->
-<div class="menu-overlay" id="mobileMenu">
-    <nav class="nav-menu">
-        <a href="https://www.pwindows.qzz.io" class="nav-item">Back to main site</a>
-    </nav>
-    
+<div class="menu-overlay shop-menu" id="mobileMenu" aria-hidden="true" inert>
+  <nav class="nav-menu" aria-label="{{ ui.navigation | escape }}">
+    {% for item in site.data.site.navigation %}
+      <a href="{{ main_site_url }}{{ item.path }}" class="nav-item btn">
+        <img class="nav-item-icon" src="{{ item.icon | relative_url }}" alt="" aria-hidden="true" width="{{ item.icon_width }}" height="{{ item.icon_height }}" />
+        {{ header_strings[item.translation_key] }}
+      </a>
+    {% endfor %}
+
+    <a class="nav-item btn btn-gold nav-bottom" href="{{ main_site_url }}/#howtojoin">
+      <img class="nav-item-icon" src="{{ '/assets/mojang/svg/icons/what-block.svg' | relative_url }}" alt="" aria-hidden="true" width="32" height="32" />
+      {{ header_strings.join-server }}
+    </a>
+    <button class="nav-item btn btn-green" type="button" disabled>
+      <img class="nav-item-icon" src="{{ '/assets/mojang/svg/icons/color-grass-block.png' | relative_url }}" alt="" aria-hidden="true" width="1024" height="1024" />
+      {{ header_strings.launch-bedrock }}
+    </button>
+
     <div class="menu-footer">
-        <p>Connect with PWindows</p>
-        <div class="social-links">
-            <a href="#" class="social-link" title="Discord">💬</a>
-            <a href="#" class="social-link" title="YouTube">📺</a>
-            <a href="#" class="social-link" title="Twitter">🐦</a>
-        </div>
+      <p>{{ header_strings.connect-with-pwindows }}</p>
+      <div class="social-links">
+        <a href="{{ site.data.site.links.discord | escape }}" class="social-link no-icon" aria-label="{{ ui.discord_label | escape }}">
+          <img class="social-link-img" src="{{ '/assets/mojang/svg/icons/discord.png' | relative_url }}" alt="" width="15" height="16" />
+        </a>
+        <a href="{{ site.data.site.links.youtube | escape }}" class="social-link no-icon" aria-label="{{ ui.youtube_label | escape }}">
+          <img class="social-link-img" src="{{ '/assets/mojang/svg/icons/color-youtube.svg' | relative_url }}" alt="" width="32" height="32" />
+        </a>
+        <a href="{{ site.data.site.links.twitter | escape }}" class="social-link no-icon" aria-label="{{ ui.twitter_label | escape }}">
+          <img class="social-link-img social-link-img--compact" src="{{ '/assets/mojang/svg/icons/color-twitter.svg' | relative_url }}" alt="" width="16" height="16" />
+        </a>
+      </div>
     </div>
+  </nav>
 </div>
 
-<!-- Topbar -->
-<nav class="topbar">
-    <div class="hamburger" id="hamburger">
-        <span></span>
-        <span></span>
-        <span></span>
-    </div>
+<nav class="topbar" aria-label="{{ ui.primary_navigation | escape }}">
+  <button class="hamburger" id="hamburger" type="button" aria-label="{{ ui.open_menu | escape }}" data-open-label="{{ ui.open_menu | escape }}" data-close-label="{{ ui.close_menu | escape }}" aria-controls="mobileMenu" aria-expanded="false">
+    <span class="hamburger-lines" aria-hidden="true"><span></span><span></span><span></span></span>
+  </button>
 
-    <div class="logo" id="logo" onclick="goHome()">
-        <img src="https://shop.pwindows.qzz.io/assets/PWindows.png" alt="PWindows Logo" class="logo-img">
-    </div>
+  <a class="logo" href="{{ '/' | relative_url }}" aria-label="{{ shop_strings.shop_home | escape }}">
+    <img src="{{ '/assets/PWindows.png' | relative_url }}" alt="PWindows Shop" class="logo-img" width="2048" height="408" />
+  </a>
 
-    <button class="cart-btn" id="cart-btn" onclick="toggleCart()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 2C8.44772 2 8 2.44772 8 3V4H4C2.89543 4 2 4.89543 2 6V20C2 21.1046 2.89543 22 4 22H20C21.1046 22 22 21.1046 22 20V6C22 4.89543 21.1046 4 20 4H16V3C16 2.44772 15.5523 2 15 2C14.4477 2 14 2.44772 14 3V4H10V3C10 2.44772 9.55228 2 9 2ZM16 6H10V7C10 7.55228 9.55228 8 9 8C8.44772 8 8 7.55228 8 7V6H4V20H20V6H16V7C16 7.55228 15.5523 8 15 8C14.4477 8 14 7.55228 14 7V6Z" fill="currentColor"/>
-        </svg>
-        <span class="cart-count" id="cart-count" style="display:none;">0</span>
-    </button>
+  <button class="cart-btn btn btn-green" id="cart-btn" type="button" aria-label="{{ shop_strings.open_cart | escape }}" aria-controls="cart-sidebar" aria-expanded="false">
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M9 2a1 1 0 0 0-1 1v1H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-4V3a1 1 0 1 0-2 0v1h-4V3a1 1 0 0 0-1-1Zm7 4h4v14H4V6h4v1a1 1 0 0 0 2 0V6h4v1a1 1 0 1 0 2 0V6Z" fill="currentColor" />
+    </svg>
+    <span class="cart-label">{{ shop_strings.cart }}</span>
+    <span class="cart-count" id="cart-count" hidden>0</span>
+  </button>
 </nav>
 
-<!-- Shopping Cart Sidebar -->
-<div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
-<div class="cart-sidebar" id="cart-sidebar">
-    <div class="cart-header">
-        <h2>Shopping Cart</h2>
-        <button class="cart-close" onclick="toggleCart()">✕</button>
+<p class="development-notice" id="development-notice" role="status" hidden>{{ shop_strings.development_bypass }}</p>
+
+<div class="cart-overlay" id="cart-overlay" aria-hidden="true"></div>
+<aside class="cart-sidebar" id="cart-sidebar" aria-labelledby="cart-heading" aria-hidden="true" inert>
+  <div class="cart-header">
+    <h2 id="cart-heading">{{ shop_strings.shopping_cart }}</h2>
+    <button class="cart-close btn" id="cart-close" type="button" aria-label="{{ shop_strings.close_cart | escape }}">&times;</button>
+  </div>
+  <div class="cart-items" id="cart-items"></div>
+  <div class="cart-footer">
+    <div class="cart-promo">
+      <label class="sr-only" for="cart-promo-input">{{ shop_strings.promo_code }}</label>
+      <input type="text" id="cart-promo-input" class="cart-promo-input" placeholder="{{ shop_strings.promo_placeholder | escape }}" />
+      <button class="cart-promo-btn btn" id="cart-promo-btn" type="button">{{ shop_strings.apply }}</button>
     </div>
-    <div class="cart-items" id="cart-items"></div>
-    <div class="cart-footer">
-        <div class="cart-promo">
-            <input type="text" id="cart-promo-input" class="cart-promo-input" placeholder="Promo code..." />
-            <button class="cart-promo-btn" onclick="applyPromoToCart()">Apply</button>
-        </div>
-        <p class="cart-promo-msg" id="cart-promo-msg"></p>
-        <div class="cart-totals">
-            <div class="cart-subtotal">
-                <span>Subtotal:</span>
-                <span id="cart-subtotal">$0.00</span>
-            </div>
-            <div class="cart-discount" id="cart-discount-row" style="display:none;">
-                <span>Discount:</span>
-                <span id="cart-discount">-$0.00</span>
-            </div>
-            <div class="cart-total">
-                <span>Total:</span>
-                <span id="cart-total">$0.00</span>
-            </div>
-        </div>
-        <button class="cart-checkout-btn" id="cart-checkout-btn" onclick="checkoutFromCart()">Proceed to Checkout</button>
+    <p class="cart-promo-msg" id="cart-promo-msg" aria-live="polite"></p>
+    <div class="cart-totals">
+      <div class="cart-subtotal"><span>{{ shop_strings.subtotal }}</span><span id="cart-subtotal">$0.00</span></div>
+      <div class="cart-discount" id="cart-discount-row" hidden><span>{{ shop_strings.discount }}</span><span id="cart-discount">-$0.00</span></div>
+      <div class="cart-total"><span>{{ shop_strings.total }}</span><span id="cart-total">$0.00</span></div>
     </div>
-</div>
+    <button class="cart-checkout-btn btn btn-green" id="cart-checkout-btn" type="button">{{ shop_strings.checkout }}</button>
+  </div>
+</aside>
 
-
-
+<script type="application/json" id="shop-i18n">{{ shop_strings | jsonify }}</script>
+<script type="application/json" id="shop-config">{"checkoutEndpoint":{{ site.data.site.checkout_endpoint | jsonify }},"checkoutAllowedHosts":{{ site.data.site.checkout_allowed_hosts | jsonify }},"languages":{{ site.languages | jsonify }}}</script>

@@ -1,0 +1,26 @@
+---
+layout: default
+title: Shop page not found
+id: shop-not-found
+description: The requested PWindows Shop page could not be found.
+permalink: /404.html
+sitemap: false
+robots: noindex, follow
+---
+
+{% assign shop_strings = site.data.shop_translations[site.active_lang] | default: site.data.shop_translations[site.default_lang] %}
+{% assign shop_fallback = false %}
+{% unless site.data.shop_translations[site.active_lang] %}{% assign shop_fallback = true %}{% endunless %}
+{% include fallback-notice.html show=shop_fallback %}
+<section class="content-page"{% if shop_fallback %} lang="{{ site.default_lang }}"{% endif %}>
+  <header class="content-page-header">
+    <h1>404</h1>
+    <p class="content-page-intro">{{ shop_strings.not_found }}</p>
+  </header>
+  <div class="content-page-body">
+    <div class="page-actions">
+      <a class="btn btn-green" href="{{ '/products' | relative_url }}">{{ shop_strings.return_to_shop }}</a>
+      <a class="btn" href="{{ site.data.site.main_url }}">{{ shop_strings.visit_main_site }}</a>
+    </div>
+  </div>
+</section>

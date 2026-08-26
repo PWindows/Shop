@@ -1,0 +1,22 @@
+---
+layout: null
+permalink: /sitemap.xml
+sitemap: false
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  {% assign public_pages = site.pages | where_exp: 'node', 'node.sitemap != false' %}
+  {% assign public_products = site.products | where_exp: 'product', 'product.coins and product.category' %}
+  {% assign sitemap_nodes = public_pages | concat: public_products %}
+  {% for node in sitemap_nodes %}
+    {% for lang in site.languages %}
+  <url>
+    <loc>{% if lang == site.default_lang %}{{ node.url | absolute_url }}{% else %}{{ node.url | prepend: lang | prepend: '/' | absolute_url }}{% endif %}</loc>
+    {% for alternate_lang in site.languages %}
+    <xhtml:link rel="alternate" hreflang="{{ alternate_lang }}" href="{% if alternate_lang == site.default_lang %}{{ node.url | absolute_url }}{% else %}{{ node.url | prepend: alternate_lang | prepend: '/' | absolute_url }}{% endif %}" />
+    {% endfor %}
+    <xhtml:link rel="alternate" hreflang="x-default" href="{{ node.url | absolute_url }}" />
+  </url>
+    {% endfor %}
+  {% endfor %}
+</urlset>

@@ -1,9 +1,35 @@
 <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "PWindows Store",
-      "url": "https://store.pwindows.qzz.io",
-      "logo": "https://store.pwindows.qzz.io/assets/logo.png"
-    }
+{
+  "@context": "https://schema.org",
+  "@type": "OnlineStore",
+  "name": {{ site.title | jsonify }},
+  "description": {{ site_tagline | default: site.description | jsonify }},
+  "url": {{ site.url | jsonify }},
+  "logo": {{ '/assets/PWindows.svg' | absolute_url | jsonify }},
+  "parentOrganization": {
+    "@type": "Organization",
+    "name": "PWindows",
+    "url": {{ site.data.site.main_url | jsonify }}
+  }
+}
 </script>
+{% if page.layout == 'product' and page.product_id %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": {{ page.title | jsonify }},
+  "description": {{ page.description | jsonify }},
+  "image": {{ page.image | absolute_url | jsonify }},
+  "sku": {{ page.product_id | jsonify }},
+  "url": {{ localized_page_path | strip | absolute_url | jsonify }},
+  "brand": {"@type":"Brand","name":"PWindows"}{% if site.data.site.checkout_ready %},
+  "offers": [
+    {"@type":"Offer","price":{{ page.price_usd | jsonify }},"priceCurrency":"USD","availability":"https://schema.org/InStock","url":{{ localized_page_path | strip | absolute_url | jsonify }}},
+    {"@type":"Offer","price":{{ page.price_myr | jsonify }},"priceCurrency":"MYR","availability":"https://schema.org/InStock","url":{{ localized_page_path | strip | absolute_url | jsonify }}},
+    {"@type":"Offer","price":{{ page.price_cny | jsonify }},"priceCurrency":"CNY","availability":"https://schema.org/InStock","url":{{ localized_page_path | strip | absolute_url | jsonify }}}
+  ]
+  {% endif %}
+}
+</script>
+{% endif %}
